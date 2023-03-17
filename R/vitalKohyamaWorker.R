@@ -42,7 +42,7 @@ vitalKohyamaWorker <- function(x, w = NULL, ind_id = "stem_id",
   if (is.null(w)) {
     x_fil$n <- 1
   } else {
-    x_fil$n <- x[[w]]
+    x_fil$n <- x_fil[[w]]
   }
 
   x0 <- x_fil[x_fil[[census_date]] == census_date_1,]
