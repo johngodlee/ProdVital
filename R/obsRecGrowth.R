@@ -125,6 +125,10 @@ obsRecGrowth <- function(x, w = "diam", ind_id = "stem_id", diam = "diam",
       # Create list
       method_list[["extrap"]] <- BD
     }
+  # If no recruits
+  } else {
+    # Fill with zero
+    method_list[seq_along(method_list)] <- 0
   }
 
   # If only one method, don't return nested list

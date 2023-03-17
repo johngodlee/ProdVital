@@ -49,10 +49,10 @@ unobsRecGrowth <- function(x, w = "diam", ind_id = "stem_id", diam = "diam",
   x_si <- x_fil[x_fil[[ind_id]] %in% si, 
     c(ind_id, w, census_date, diam)]
 
-
   # Subset individuals to smallest size class
   x_si_min <- x_si[x_si[[diam]] >= min_size_class[1] & 
-    x_si[[diam]] < min_size_class[2],]
+    x_si[[diam]] < min_size_class[2] & 
+    !is.na(x_si[[diam]]),]
 
   # Find median growth rate of survivors in smallest diam size class 
   # Between two censuses

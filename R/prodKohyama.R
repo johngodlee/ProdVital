@@ -47,6 +47,9 @@
 #'   \item{Psimp_clark}{simple rate of production (Clark et al. 2001)}
 #' }
 #' 
+#' @details Only returns pairwise estimates for census intervals
+#'     of less than 10 years.
+#' 
 #' @export
 #' 
 prodKohyama <- function(x, ind_id = "stem_id", 
@@ -66,8 +69,11 @@ prodKohyama <- function(x, ind_id = "stem_id",
   # Create all pairwise combinations of censuses
   comb_list_pair <- combn(census_date_all, 2, simplify = FALSE)
 
+  # Discard censuses >10 years apart
+  comb_list_pair_fil <- comb_list_pair[unlist(lapply(comb_list_pair, diff)) <=10]
+
   # For each pairwise census interval combination:
-  agwp_pair_list <- lapply(comb_list_pair, function(i) { 
+  agwp_pair_list <- lapply(comb_list_pair_fil, function(i) { 
     # Estimate productivity according to Kohyama 
     prodKohyamaWorker(x, ind_id = ind_id, agb = agb, 
       census_date = census_date, plot_area, 

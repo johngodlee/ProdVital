@@ -104,7 +104,7 @@ unobsMorGrowth <- function(x, w = "diam", ind_id = "stem_id", diam = "diam",
   names(x_cen2) <- c(ind_id, w)
 
   # Calculate woody productivity, 
-  out <- sum(x_cen2[[w]] - x_cen1[[w]])
+  out <- sum(x_cen2[[w]] - x_cen1[[w]], na.rm = TRUE)
 
   # Return
   return(out)

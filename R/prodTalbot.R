@@ -35,6 +35,9 @@
 #'   \item{cic}{correction factor calculated as slope of linear model of mean AGWP_obs and int}
 #'   \item{AGWP_est_ann_cic}{Estimated productivity using CIC1, plot correction factor approach: AGWP_obs * (cic - int)}
 #' }
+#' 
+#' @details Only returns pairwise estimates for census intervals 
+#'     of less than 10 years.
 #' @export
 #' 
 prodTalbot <- function(x, w = "agb", ind_id = "stem_id", diam = "diam",
@@ -56,8 +59,11 @@ prodTalbot <- function(x, w = "agb", ind_id = "stem_id", diam = "diam",
   # Create all pairwise combinations of censuses
   comb_list_pair <- combn(census_date_all, 2, simplify = FALSE)
 
+  # Discard censuses >10 years apart
+  comb_list_pair_fil <- comb_list_pair[unlist(lapply(comb_list_pair, diff)) <=10]
+
   # For each pairwise census interval combination
-  agwp_pair_list <- lapply(comb_list_pair, function(i) { 
+  agwp_pair_list <- lapply(comb_list_pair_fil, function(i) { 
     prodTalbotWorker(x, w = w, diam = diam, ind_id = ind_id,
       census_date = census_date, 
       min_diam_thresh = min_diam_thresh, 
@@ -80,11 +86,6 @@ prodTalbot <- function(x, w = "agb", ind_id = "stem_id", diam = "diam",
   # Find all census interval combinations at 2,3,4 combinations
   comb_list <- unlist(lapply(window_seq, window_func, x = census_date_all), 
     recursive = FALSE)
-
-  # Calculate mean census interval length for each combination
-  comb_mean_int <- unlist(lapply(comb_list, function(y) { 
-    mean(diff(y))
-  }))
 
   # Find all single interval combinations
   comb_list_two <- comb_list[unlist(lapply(comb_list, length)) == 2]
