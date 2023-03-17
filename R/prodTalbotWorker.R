@@ -25,7 +25,7 @@
 #' 
 #' @export
 #' 
-prodTalbotWorker <- function(x, w = "diam", diam = "diam", 
+prodTalbotWorker <- function(x, w = "agb", diam = "diam", 
   ind_id = "stem_id", census_date = "census_date", 
   min_diam_thresh = 5, growth_percentile = 0.86, min_size_class = c(5,10),
   rec_method = "min_diam_thresh", size_class = c(5,10,20,30,40,50),
