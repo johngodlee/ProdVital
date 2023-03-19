@@ -29,6 +29,7 @@
 #'   \item{rec_obs}{Observed growth contribution of recruits observed in final census}
 #'   \item{mor_unobs}{Estimated unobserved growth of stems which died in census interval}
 #'   \item{rec_unobs}{Estimated unobserved growth of stems which recruited and died in census interval}
+#'   \item{mor_obs}{Observed loss from stems which died in census interval}
 #'   \item{t0}{census date of initial census}
 #'   \item{tT}{census date of final census}
 #'   \item{int}{tT - t0}

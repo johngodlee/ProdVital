@@ -78,6 +78,11 @@ prodTalbotWorker <- function(x, w = "agb", diam = "diam",
     census_date_1 = census_date_1, census_date_2 = census_date_2, 
     w_min = w_min)
 
+  # Calculate observed loss to mortality
+  obs_mor_loss <- obsMorLoss(x_fil, w = w, ind_id = ind_id, 
+  census_date = census_date, 
+  census_date_1 = census_date_1, census_date_2 = census_date_2)
+
   # Total change = growth of survivors + growth of recruits
   AGWP_obs <- obs_sur_growth + obs_rec_growth
 
@@ -93,8 +98,8 @@ prodTalbotWorker <- function(x, w = "agb", diam = "diam",
   out <- list(AGWP_obs = AGWP_obs, AGWP_est = AGWP_est, 
     AGWP_obs_ann = AGWP_obs_ann, AGWP_est_ann = AGWP_est_ann, 
     sur_obs = obs_sur_growth, rec_obs = obs_rec_growth,
-    mor_unobs = unobs_mor_growth, rec_unobs = unobs_rec_growth,
-    t0 = census_date_1, tT = census_date_2, int = int)
+    mor_unobs = unobs_mor_growth, rec_unobs = unobs_rec_growth, 
+    mor_obs = obs_mor, t0 = census_date_1, tT = census_date_2, int = int)
 
   # Return
   return(out)
