@@ -38,6 +38,9 @@ obsMorLoss <- function(x, w = "diam", ind_id = "stem_id",
   # Calculate total loss
   out <- sum(x_di[[w]], na.rm = TRUE)
 
+  # Should never be negative
+  if (out < 0) { stop("No observed mortality should be <0") }
+
   # Return
   return(out)
 }

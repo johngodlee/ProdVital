@@ -10,29 +10,53 @@
 #' @param min_size_class vector of length two containing range of minimum 
 #'     diameter size class used to estimate median growth rate of recruits
 #' @param rec_method character string describing method used to estimate 
-#'     growth of recruits
-#' @param min_diam_thresh minimum diameter threshold of plot
+#'     growth of recruits. Can be \code{zero}, \code{min_diam_thresh}, or 
+#'     \code{extrap}.
+#' @param min_diam_thresh minimum diameter threshold of plot, defaults to 
+#'     first value in \code{min_size_class}
+#' @param w_min_diam vector of length 1, column name of estimated value of 
+#'     \code{w} in \code{x} at the minimum diameter threshold of the plot. 
+#'     Required when \code{rec_method == "min_diam_thresh"}. Defaults to lower 
+#'     value of minimum diameter size class
 #' @param census_date_1 column initial census of interval
 #' @param census_date_2 column final census of interval
-#' @param w_min the minimum value of \code{w} expected to be encountered in 
-#'     the plot given the minimum diameter threshold. Default assumes minimum 
-#'     diameter threshold
 #'
 #' @return total productivity from observed growth of recruits
 #' 
 #' @details These are stems which were observed as a recruit in the next 
-#'     census.
+#'     census. If \code{rec_method == "min_diam_thresh"}, \code{w_min_diam} 
+#'     must be a column with the estimated value of \code{w} for each stem at 
+#'     the minimum diameter threshold of the plot (\code{min_diam_thresh}).
 #' @export
 #' 
-obsRecGrowth <- function(x, w = "diam", ind_id = "stem_id", diam = "diam",
-  census_date = "census_date",  growth_percentile = 0.86, 
-  min_size_class = c(5, 10),
-  rec_method = c("zero", "min_diam_thresh", "extrap"), 
-  min_diam_thresh, census_date_1, census_date_2, w_min = min_size_class[1]) { 
+obsRecGrowth <- function(x, w = "diam_imput", ind_id = "stem_id", 
+  diam = "diam_imput", census_date = "census_date",  growth_percentile = 0.86, 
+  min_size_class = c(5, 10), rec_method = "zero", 
+  min_diam_thresh = min_size_class[1], w_min_diam = min_size_class[1], 
+  census_date_1, census_date_2) { 
 
   # Stop if methods not recognised
   if (any(!rec_method %in% c("zero", "min_diam_thresh", "extrap"))) {
     stop("Invalid recruit growth estimation method. Methods must be either 'zero', 'min_diam_thresh', 'extrap'")
+  }
+
+  # Stop if minimum size class is malformed
+  if (length(min_size_class) != 2 | !is.numeric(min_size_class)) {
+    stop("min_size_class must be a numeric vector of length two")
+  }
+  
+  # If w_min_diam is numeric, add as column
+  if (is.numeric(w_min_diam)) {
+    if (length(w_min_diam) > 1) {
+      stop("Numeric w_min_diam must be of length one")
+    }
+    x$w_min_diam <- w_min_diam
+    w_min_diam <- "w_min_diam"
+  } 
+
+  # Stop if any columns not recognised
+  if (any(!c(w_min_diam, w, ind_id, diam, census_date) %in% names(x))) {
+    stop("Some columns not present in x")
   }
 
   # Convert potential tibble to dataframe
@@ -80,11 +104,8 @@ obsRecGrowth <- function(x, w = "diam", ind_id = "stem_id", diam = "diam",
       # Filter recruits to final census
       x_rec_fil <- x_rec[x_rec[[census_date]] == census_date_2,]
 
-      # For each recruit make w the min. diam. thresh equivalent
-      x_rec_fil$w_old <- w_min 
-
       # Find change
-      BD <- sum(x_rec_fil[[w]] - x_rec_fil$w_old, na.rm = TRUE)
+      BD <- sum(x_rec_fil[[w]] - x_rec_fil[[w_min_diam]], na.rm = TRUE)
 
       # Create list
       method_list[["min_diam_thresh"]] <- BD
@@ -134,6 +155,11 @@ obsRecGrowth <- function(x, w = "diam", ind_id = "stem_id", diam = "diam",
   # If only one method, don't return nested list
   if (length(rec_method) == 1) {
     method_list <- method_list[[1]]
+  }
+
+  # None should be negative
+  if (any(unlist(method_list) < 0)) {
+    stop("No observed recruitment growth should be <0")
   }
 
   # Return

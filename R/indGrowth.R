@@ -25,6 +25,11 @@ indGrowth <- function(x, w = "diam", ind_id = "stem_id",
     stop("census dates must be in chronological order")
   }
 
+  # Stop if any columns not recognised
+  if (any(!c(w, ind_id, census_date) %in% names(x))) {
+    stop("Some columns not present in x")
+  }
+
   # Subset to censuses of interest
   x_fil <- x[x[[census_date]] %in% c(census_date_1, census_date_2),]
 

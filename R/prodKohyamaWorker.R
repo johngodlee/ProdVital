@@ -5,7 +5,6 @@
 #' @param ind_id column name of individual IDs 
 #' @param agb column name of AGB values
 #' @param census_date column name of census dates 
-#' @param plot_area plot area in hectares
 #' @param census_date_1 column initial census of interval
 #' @param census_date_2 column final census of interval
 #' 
@@ -14,8 +13,7 @@
 #' @export
 #' 
 prodKohyamaWorker <- function(x, ind_id = "stem_id", 
-  agb = "agb", census_date = "census_date", plot_area, 
-  census_date_1, census_date_2) {
+  agb = "agb", census_date = "census_date", census_date_1, census_date_2) {
 
   # Calculate census interval
   int <- as.numeric(census_date_2) - as.numeric(census_date_1)
@@ -51,6 +49,12 @@ prodKohyamaWorker <- function(x, ind_id = "stem_id",
 
   # Find final biomass for plot
   BT <- sum(xT[[agb]], na.rm = TRUE)
+
+  # Find change in biomass for plot
+  dB <- BT - B0
+
+  # Find annual change in biomass for plot
+  dB_ann <- dB / int
 
   # Find survivors
   si <- obsSur(x_fil, ind_id = ind_id, census_date = census_date, 
@@ -101,11 +105,9 @@ prodKohyamaWorker <- function(x, ind_id = "stem_id",
 
   # Period mean abundance - Kohyama et al. (2018) Eq10
   Nw <- ifelse(NT != N0, (NT-N0)/log(NT/N0), N0)
-  Narea <- Nw / plot_area
 
   # Period mean biomass - Kohyama et al. (2018) Eq10
   Bwk <- ifelse(BT != B0, (BT-B0)/log(BT/B0), B0)
-  Barea <- Bwk / plot_area
   
   # Kohyama et al. (2018) Eq14
   Nw_ann <- ifelse(NT != N0, (NT-N0)/((NT/N0)^(1/int) - 1)/int, N0)
@@ -141,9 +143,8 @@ prodKohyamaWorker <- function(x, ind_id = "stem_id",
     l_turn <- NA_real_
   }
 
-  Pabs <- p_turn * Barea
-  Psimp <- (sum((NT * BT - Ns0 * B0) / int)) / plot_area
-  Psimp_clark  <- (sum(Ns0 * (BT - B0) / int + Nr0 * (BT - Bmin) / int)) / plot_area
+  Psimp <- (sum((NT * BT - Ns0 * B0) / int)) 
+  Psimp_clark  <- (sum(Ns0 * (BT - B0) / int + Nr0 * (BT - Bmin) / int))
 
   # Create output list
   out <- list(
@@ -152,14 +153,15 @@ prodKohyamaWorker <- function(x, ind_id = "stem_id",
     tT = census_date_2,
     N0 = N0, NT = NT, Ns0 = Ns0, Nr0 = Nr0, Nd0 = Nd0,
     B0 = B0, BT = BT, Bs0 = Bs0, Br0 = Br0, Bd0 = Bd0,
+    dB = dB, dB_ann = dB_ann,
     W_max = W_max,
     r_turn = r_turn, m_turn = m_turn, p_turn = p_turn, l_turn = l_turn,
-    Nw = Nw, Narea = Narea, Nw_ann = Nw_ann,
-    Bwk = Bwk, Barea = Barea, Bw_ann = Bw_ann,
+    Nw = Nw, Nw_ann = Nw_ann,
+    Bwk = Bwk, Bw_ann = Bw_ann,
     P_simple = P_simple, L_simple = L_simple, Bw_simple = Bw_simple,
     P_ann = P_ann, L_ann = L_ann,
     P = P, L = L, Bw = Bw,
-    Pabs = Pabs, Psimp = Psimp, Psimp_clark = Psimp_clark)
+    Psimp = Psimp, Psimp_clark = Psimp_clark)
 
   # Return
   return(out)

@@ -47,7 +47,7 @@ obsSurGrowth <- function(x, w = "diam", ind_id = "stem_id",
   x_cen1_w <- x_cen1[order(x_cen1[[ind_id]]), w]
   x_cen2_w <- x_cen2[order(x_cen2[[ind_id]]), w]
 
-  # Calculate woody productivity, i.e. growth of recruit
+  # Calculate woody productivity, i.e. growth of stems
   w_diff <- x_cen2_w - x_cen1_w
 
   # Sum of AGB growth per stem

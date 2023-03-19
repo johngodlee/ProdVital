@@ -3,21 +3,23 @@
 #' 
 #' @param x dataframe of SEOSAW stem data from single plot
 #' @param w column name of value from which to calculate growth in \code{x}
-#' @param ind_id column name of individual IDs in code{x}
+#' @param ind_id column name of stem IDs in code{x}
 #' @param diam column name of stem diameters in code{x}
 #' @param census_date column name of census dates in code{x}
-#' @param min_diam_thresh minimum diameter threshold of plot
-#' @param growth_percentile percentile of growth rate used to estimate growth 
-#'     rate of recruits for backward extrapolation
 #' @param min_size_class vector of length two containing range of minimum 
 #'     diameter size class used to estimate median growth rate of recruits
+#' @param min_diam_thresh minimum diameter threshold of plot, defaults to 
+#'     first value in \code{min_size_class}
+#' @param w_min_diam vector of length 1, column name of estimated value of 
+#'     \code{w} in \code{x} at the minimum diameter threshold of the plot. 
+#'     Defaults to lower value of minimum diameter size class
+#' @param growth_percentile percentile of growth rate used to estimate growth 
+#'     rate of recruits for backward extrapolation
 #' @param rec_method character string describing method used to estimate 
-#'     growth of recruits
+#'     growth of recruits. Can be \code{zero}, \code{min_diam_thresh}, or 
+#'     \code{extrap}.
 #' @param size_class numeric vector containing diameter size class cut points.
 #'     The largest number will be open ended, e.g. 50+
-#' @param w_min the minimum value of \code{w} expected to be encountered in 
-#'     the plot given the minimum diameter threshold. Default assumes minimum 
-#'     diameter threshold
 #'
 #' @return dataframe containing measures of prodcutivity for each pairwise census interval:
 #' \itemize{
@@ -37,14 +39,13 @@
 #'   \item{AGWP_est_ann_cic}{Estimated productivity using CIC1, plot correction factor approach: AGWP_obs * (cic - int)}
 #' }
 #' 
-#' @details Only returns pairwise estimates for census intervals 
-#'     of less than 10 years.
 #' @export
 #' 
-prodTalbot <- function(x, w = "agb", ind_id = "stem_id", diam = "diam",
-  census_date = "census_date", 
-  min_diam_thresh = 5, growth_percentile = 0.86, min_size_class = c(5,10),
-  rec_method = "min_diam_thresh", size_class = c(5,10,20,30,40,50), w_min = min_size_class[1]) { 
+prodTalbot <- function(x, w = "diam", diam = "diam", 
+  ind_id = "stem_id", census_date = "census_date", 
+  min_size_class = c(5,10), min_diam_thresh = min_size_class[1], 
+  w_min_diam = min_size_class[1], growth_percentile = 0.86, 
+  rec_method = "zero", size_class = c(5,10,20,30,40,50)) { 
 
   # Convert potential tibble to dataframe
   x <- as.data.frame(x)
@@ -61,7 +62,7 @@ prodTalbot <- function(x, w = "agb", ind_id = "stem_id", diam = "diam",
   comb_list_pair <- combn(census_date_all, 2, simplify = FALSE)
 
   # Discard censuses >10 years apart
-  comb_list_pair_fil <- comb_list_pair[unlist(lapply(comb_list_pair, diff)) <=10]
+  comb_list_pair_fil <- comb_list_pair[unlist(lapply(comb_list_pair, diff))<=10]
 
   # If no censuses <= 10 years apart, return nothing
   if (length(comb_list_pair_fil) > 0) {
@@ -72,7 +73,7 @@ prodTalbot <- function(x, w = "agb", ind_id = "stem_id", diam = "diam",
         min_diam_thresh = min_diam_thresh, 
         growth_percentile = growth_percentile, min_size_class = min_size_class, 
         rec_method = rec_method, size_class = size_class, 
-        census_date_1 = i[1], census_date_2 = i[2], w_min = w_min)
+        census_date_1 = i[1], census_date_2 = i[2], w_min_diam = w_min_diam)
     })
 
     # Define window function
@@ -99,7 +100,7 @@ prodTalbot <- function(x, w = "agb", ind_id = "stem_id", diam = "diam",
         census_date = census_date, min_diam_thresh = min_diam_thresh, 
         growth_percentile = growth_percentile, min_size_class = min_size_class, 
         rec_method = rec_method, size_class = size_class, 
-        census_date_1 = i[1], census_date_2 = i[2], w_min = w_min)
+        census_date_1 = i[1], census_date_2 = i[2], w_min_diam = w_min_diam)
     })
 
     # Extract annual AGWP from each interval combination
