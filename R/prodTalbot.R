@@ -63,79 +63,82 @@ prodTalbot <- function(x, w = "agb", ind_id = "stem_id", diam = "diam",
   # Discard censuses >10 years apart
   comb_list_pair_fil <- comb_list_pair[unlist(lapply(comb_list_pair, diff)) <=10]
 
-  # For each pairwise census interval combination
-  agwp_pair_list <- lapply(comb_list_pair_fil, function(i) { 
-    prodTalbotWorker(x, w = w, diam = diam, ind_id = ind_id,
-      census_date = census_date, 
-      min_diam_thresh = min_diam_thresh, 
-      growth_percentile = growth_percentile, min_size_class = min_size_class, 
-      rec_method = rec_method, size_class = size_class, 
-      census_date_1 = i[1], census_date_2 = i[2], w_min = w_min)
-  })
-
-  # Define window function
-  window_func <- function(x, y) {
-    lapply(seq_len(length(x) - y + 1), function(i) {
-      x[i:(i + y - 1)]
+  # If no censuses <= 10 years apart, return nothing
+  if (length(comb_list_pair_fil) > 0) {
+    # For each pairwise census interval combination
+    agwp_pair_list <- lapply(comb_list_pair_fil, function(i) { 
+      prodTalbotWorker(x, w = w, diam = diam, ind_id = ind_id,
+        census_date = census_date, 
+        min_diam_thresh = min_diam_thresh, 
+        growth_percentile = growth_percentile, min_size_class = min_size_class, 
+        rec_method = rec_method, size_class = size_class, 
+        census_date_1 = i[1], census_date_2 = i[2], w_min = w_min)
     })
+
+    # Define window function
+    window_func <- function(x, y) {
+      lapply(seq_len(length(x) - y + 1), function(i) {
+        x[i:(i + y - 1)]
+      })
+    }
+
+    # Define window lengths
+    window_len <- min(length(census_date_all), 4)
+    window_seq <- seq(2, window_len)
+
+    # Find all census interval combinations at 2,3,4 combinations
+    comb_list <- unlist(lapply(window_seq, window_func, x = census_date_all), 
+      recursive = FALSE)
+
+    # Find all single interval combinations
+    comb_list_two <- comb_list[unlist(lapply(comb_list, length)) == 2]
+
+    # For each two census interval combination
+    agwp_int_list <- lapply(comb_list_two, function(i) { 
+      prodTalbotWorker(x, w = w, diam = diam, ind_id = ind_id,
+        census_date = census_date, min_diam_thresh = min_diam_thresh, 
+        growth_percentile = growth_percentile, min_size_class = min_size_class, 
+        rec_method = rec_method, size_class = size_class, 
+        census_date_1 = i[1], census_date_2 = i[2], w_min = w_min)
+    })
+
+    # Extract annual AGWP from each interval combination
+    AGWP_obs_ann_vec <- unlist(lapply(agwp_int_list, "[[", "AGWP_obs_ann"))
+    t0_vec <- unlist(lapply(agwp_int_list, "[[", "t0"))
+    tT_vec <- unlist(lapply(agwp_int_list, "[[", "tT"))
+
+    # For each combination calculate mean AGWP_ann from stepwise combinations
+    comb_two_join <- unlist(lapply(comb_list_two, paste, collapse = "-"))
+    comb_list_join <- lapply(comb_list, function(y) { 
+      date_join <- paste(c(NA, y), c(y, NA), sep = "-") 
+      date_join[-c(1, length(date_join))]
+    })
+
+    # For each census interval combination extract AGWP
+    mean_agwp_df <- fastRbind(lapply(comb_list_join, function(y) {
+      mean_AGWP_ann <- mean(AGWP_obs_ann_vec[which(comb_two_join %in% y)])
+      mean_int <- mean(tT_vec[which(comb_two_join %in% y)] - 
+        t0_vec[which(comb_two_join %in% y)])
+      data.frame(mean_AGWP_ann, mean_int)
+    }))
+
+    # Run linear model of mean interval vs. mean annual AGWP
+    cic_lm <- lm(mean_AGWP_ann ~ mean_int, data = mean_agwp_df)
+
+    # Extract slope from model
+    cic <- unname(cic_lm$coefficients[2])
+    cic <- ifelse(is.na(cic), 0, cic)
+
+    # Extract change for all pairwise census intervals
+    out <- data.frame()[seq_along(agwp_pair_list), ]
+    for (i in names(agwp_pair_list[[1]])) {
+      out[[i]] <- unlist(lapply(agwp_pair_list, "[[", i))
+    }
+    out$cic <- cic
+    out$AGWP_est_ann_cic <- out$AGWP_obs_ann - (out$cic * out$int)
+    
+    # Return dataframe
+    return(out)
   }
-
-  # Define window lengths
-  window_len <- min(length(census_date_all), 4)
-  window_seq <- seq(2, window_len)
-
-  # Find all census interval combinations at 2,3,4 combinations
-  comb_list <- unlist(lapply(window_seq, window_func, x = census_date_all), 
-    recursive = FALSE)
-
-  # Find all single interval combinations
-  comb_list_two <- comb_list[unlist(lapply(comb_list, length)) == 2]
-
-  # For each two census interval combination
-  agwp_int_list <- lapply(comb_list_two, function(i) { 
-    prodTalbotWorker(x, w = w, diam = diam, ind_id = ind_id,
-      census_date = census_date, min_diam_thresh = min_diam_thresh, 
-      growth_percentile = growth_percentile, min_size_class = min_size_class, 
-      rec_method = rec_method, size_class = size_class, 
-      census_date_1 = i[1], census_date_2 = i[2], w_min = w_min)
-  })
-
-  # Extract annual AGWP from each interval combination
-  AGWP_obs_ann_vec <- unlist(lapply(agwp_int_list, "[[", "AGWP_obs_ann"))
-  t0_vec <- unlist(lapply(agwp_int_list, "[[", "t0"))
-  tT_vec <- unlist(lapply(agwp_int_list, "[[", "tT"))
-
-  # For each combination calculate mean AGWP_ann from stepwise combinations
-  comb_two_join <- unlist(lapply(comb_list_two, paste, collapse = "-"))
-  comb_list_join <- lapply(comb_list, function(y) { 
-    date_join <- paste(c(NA, y), c(y, NA), sep = "-") 
-    date_join[-c(1, length(date_join))]
-  })
-
-  # For each census interval combination extract AGWP
-  mean_agwp_df <- fastRbind(lapply(comb_list_join, function(y) {
-    mean_AGWP_ann <- mean(AGWP_obs_ann_vec[which(comb_two_join %in% y)])
-    mean_int <- mean(tT_vec[which(comb_two_join %in% y)] - 
-      t0_vec[which(comb_two_join %in% y)])
-    data.frame(mean_AGWP_ann, mean_int)
-  }))
-
-  # Run linear model of mean interval vs. mean annual AGWP
-  cic_lm <- lm(mean_AGWP_ann ~ mean_int, data = mean_agwp_df)
-
-  # Extract slope from model
-  cic <- unname(cic_lm$coefficients[2])
-  cic <- ifelse(is.na(cic), 0, cic)
-
-  # Extract change for all pairwise census intervals
-  out <- data.frame()[seq_along(agwp_pair_list), ]
-  for (i in names(agwp_pair_list[[1]])) {
-    out[[i]] <- unlist(lapply(agwp_pair_list, "[[", i))
-  }
-  out$cic <- cic
-  out$AGWP_est_ann_cic <- out$AGWP_obs_ann - (out$cic * out$int)
-  
-  # Return dataframe
-  return(out)
 }
 

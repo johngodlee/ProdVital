@@ -53,21 +53,27 @@ vitalKohyama <- function(x, w = NULL, ind_id = "stem_id",
   # Create all pairwise combinations of censuses
   comb_list_pair <- combn(census_date_all, 2, simplify = FALSE)
 
-  # For each pairwise census interval combination:
-  vital_pair_list <- lapply(comb_list_pair, function(i) { 
-    # Estimate vital rates according to Kohyama 
-    vitalKohyamaWorker(x, w = w, ind_id = ind_id, 
-      census_date = census_date, plot_area = plot_area,
-      census_date_1 = i[1], census_date_2 = i[2])
-  })
+  # Discard censuses >10 years apart
+  comb_list_pair_fil <- comb_list_pair[unlist(lapply(comb_list_pair, diff)) <=10]
 
-  # Create dataframe of metrics
-  out <- data.frame()[seq_along(vital_pair_list), ]
-  for (i in names(vital_pair_list[[1]])) {
-    out[[i]] <- unlist(lapply(vital_pair_list, "[[", i))
+  # If no censuses <= 10 years apart, return nothing
+  if (length(comb_list_pair_fil) > 0) {
+    # For each pairwise census interval combination:
+    vital_pair_list <- lapply(comb_list_pair, function(i) { 
+      # Estimate vital rates according to Kohyama 
+      vitalKohyamaWorker(x, w = w, ind_id = ind_id, 
+        census_date = census_date, plot_area = plot_area,
+        census_date_1 = i[1], census_date_2 = i[2])
+    })
+
+    # Create dataframe of metrics
+    out <- data.frame()[seq_along(vital_pair_list), ]
+    for (i in names(vital_pair_list[[1]])) {
+      out[[i]] <- unlist(lapply(vital_pair_list, "[[", i))
+    }
+
+    # Return
+    return(out)
   }
-
-  # Return
-  return(out)
 }
 

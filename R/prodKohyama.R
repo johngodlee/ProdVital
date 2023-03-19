@@ -72,22 +72,24 @@ prodKohyama <- function(x, ind_id = "stem_id",
   # Discard censuses >10 years apart
   comb_list_pair_fil <- comb_list_pair[unlist(lapply(comb_list_pair, diff)) <=10]
 
-  # For each pairwise census interval combination:
-  agwp_pair_list <- lapply(comb_list_pair_fil, function(i) { 
-    # Estimate productivity according to Kohyama 
-    prodKohyamaWorker(x, ind_id = ind_id, agb = agb, 
-      census_date = census_date, plot_area, 
-      census_date_1 = i[1], census_date_2 = i[2])
-  })
+  # If no censuses <= 10 years apart, return nothing
+  if (length(comb_list_pair_fil) > 0) {
+    # For each pairwise census interval combination:
+    agwp_pair_list <- lapply(comb_list_pair_fil, function(i) { 
+      # Estimate productivity according to Kohyama 
+      prodKohyamaWorker(x, ind_id = ind_id, agb = agb, 
+        census_date = census_date, plot_area, 
+        census_date_1 = i[1], census_date_2 = i[2])
+    })
 
-  # Create dataframe of metrics
-  out <- data.frame()[seq_along(agwp_pair_list), ]
-  for (i in names(agwp_pair_list[[1]])) {
-    out[[i]] <- unlist(lapply(agwp_pair_list, "[[", i))
+    # Create dataframe of metrics
+    out <- data.frame()[seq_along(agwp_pair_list), ]
+    for (i in names(agwp_pair_list[[1]])) {
+      out[[i]] <- unlist(lapply(agwp_pair_list, "[[", i))
+    }
+
+    # Return
+    return(out)
   }
-
-  # Return
-  return(out)
-
 }
 
