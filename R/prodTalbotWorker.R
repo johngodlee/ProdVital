@@ -95,7 +95,7 @@ prodTalbotWorker <- function(x, w = "diam", ind_id = "stem_id",
 
   # Annual rates
   AGWP_est_ann <- AGWP_est / int
-  AGWP_obs_ann <- AGWP_est / int
+  AGWP_obs_ann <- AGWP_obs / int
 
   # Create list of values
   out <- list(AGWP_obs = AGWP_obs, AGWP_est = AGWP_est, 

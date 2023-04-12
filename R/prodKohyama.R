@@ -40,7 +40,8 @@
 #'   \item{L_ann}{annual rate of loss (Kohyama et al. 2019 Eq13)}
 #'   \item{P}{instantaneous rate of production}
 #'   \item{L}{instantaneous rate of loss}
-#'   \item{Bw}{alternative measure of period mean biomass, to check consistency in calculation with Bwk}
+#'   \item{Bwk}{alternative measure of period mean biomass, to check 
+#'       consistency in calculation with Bw}
 #'   \item{Psimp}{simple rate of production, alternative method}
 #'   \item{Psimp_clark}{simple rate of production (Clark et al. 2001)}
 #' }

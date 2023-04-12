@@ -87,6 +87,27 @@ unobsMorGrowth <- function(x, w = "diam", ind_id = "stem_id", diam = "diam",
     size_class = names(si_class_median_growth),
     median_growth = unname(unlist(si_class_median_growth)))
 
+  # Create unrepresented size classes
+  unrep_size_class <- unique(x_di_class$size_class)[
+    !unique(x_di_class$size_class) %in% si_class_median_growth_df$size_class]
+
+  if (length(unrep_size_class) > 0) {
+    if (nrow(si_class_median_growth_df) > 0) {
+      median_growth_all <- mean(si_class_median_growth_df$median_growth, 
+        na.rm = TRUE)
+    } else {
+      median_growth_all <- 0
+    }
+
+    unrep_size_class_df <- data.frame(
+      size_class = unrep_size_class,
+      median_growth = median_growth_all)
+
+    si_class_median_growth_df <- rbind(
+      si_class_median_growth_df, unrep_size_class_df)
+  }
+
+
   # Filter dead to first census
   x_di_class_cen1 <- x_di_class[x_di_class[[census_date]] == census_date_1,]
 

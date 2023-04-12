@@ -110,15 +110,24 @@ vitalKohyamaWorker <- function(x, w = NULL, ind_id = "stem_id",
 
   # Calculate instantaneous per area recruitment rate
   R <- M * (NT - NST) / (N0 - NST)
+  if (is.nan(R)) {
+    R <- (NT / A) * log(NT / NST) / int
+  }
 
   # Calculate per area annual mortality rate
   Ma <- (N0 / A) * (1 - (NST / N0)^(1/int))
 
   # Calculate per area annual recruitment rate
   Ra <- Ma * (NT - NST) / (N0 - NST)
+  if (is.nan(Ra)) {
+    Ra <- (NT / A) * (1 - (NST / NT)^(1/int))
+  }
 
   # Calculate per area annual recruitment rate with first year deaths
   Ras <- Ma * (NT - NST) * (N0 / NST)^(1/int) / (N0 - NST)
+  if (is.nan(Ras)) {
+    Ras <- Ra
+  }
 
   # Calculate per area annual recruitment rate with "Gf-estimate"
   #RGf <- G * (min_diam_thresh) * N * (min_diam_thresh) / A
