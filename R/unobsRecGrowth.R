@@ -1,30 +1,36 @@
-#' Estimate growth of unob
 #' Estimate growth of unobserved recruits between two censuses
 #'
-#' @param x dataframe of stem measurements
-#' @param w column name of value from which to calculate growth in \code{x}
-#' @param ind_id column name of individual IDs in code{x}
-#' @param diam column name of stem diameters in code{x}
-#' @param census_date column name of census dates in code{x}
-#' @param min_size_class vector of length two containing range of minimum 
-#'     diameter size class used to estimate median growth rate
-#' @param w_min_diam vector of length 1, column name of estimated value of 
-#'     \code{w} in \code{x} at the minimum diameter threshold of the plot. 
-#'     Defaults to lower value of minimum diameter size class
-#' @param census_date_1 column initial census of interval
-#' @param census_date_2 column final census of interval
+#' `r descrip_table()` `r descrip_gro("estimate", "growth", "recruited and died")`
 #'
-#' @return total productivity from unobserved growth of recruits which died
+#' @param x `r param_x()`
+#' @param t0 `r param_t0()`
+#' @param tT `r param_tT()`
+#' @param w `r param_w()`
+#' @param group `r param_group()`
+#' @param census `r param_census()`
+#' @param diam `r param_diam()`
+#' @param min_size_class `r param_min_size_class()`
+#' @param w_min_diam `r param_w_min_diam()`
+#'
+#' @return 
+#' `r details_obs_sum(un = TRUE)` growth from recruits which died.
 #' 
-#' @details These are stems which recruit in sometime after the previous 
-#'     census, but die before the next census.
+#' @details 
+#' `r details_group()`
 #' 
+#' @examples
+#' data(bicuar)
+#' 
+#' unobsRecGrowth(bicuar, "2019", "2021", w = "diam", group = "stem_id", 
+#'   census = "census_date", diam = "diam", min_size_class = c(5, 10), 
+#'   w_min_diam = 5)
+#' 
+#' @importFrom stats median
+#'
 #' @export
 #' 
-unobsRecGrowth <- function(x, w = "diam", ind_id = "stem_id", 
-  diam = "diam", census_date = "census_date", 
-  min_size_class = c(5, 10), w_min_diam = min_size_class[1], 
-  census_date_1, census_date_2) {
+unobsRecGrowth <- function(x, t0, tT, w, group, census, diam, 
+  min_size_class, w_min_diam) {
 
   # Stop if minimum size class is malformed
   if (length(min_size_class) != 2 | !is.numeric(min_size_class)) {
@@ -35,7 +41,7 @@ unobsRecGrowth <- function(x, w = "diam", ind_id = "stem_id",
   x <- as.data.frame(x)
 
   # Find census interval
-  int <- as.numeric(census_date_2) - as.numeric(census_date_1)
+  int <- as.numeric(tT) - as.numeric(t0)
 
   # Stop is interval is negative
   if (int < 0) { 
@@ -52,23 +58,21 @@ unobsRecGrowth <- function(x, w = "diam", ind_id = "stem_id",
   } 
 
   # Stop if any columns not recognised
-  if (any(!c(w_min_diam, w, ind_id, diam, census_date) %in% names(x))) {
+  if (any(!c(w_min_diam, w, group, diam, census) %in% names(x))) {
     stop("Some columns not present in x")
   }
 
   # Subset to censuses of interest
-  x_fil <- x[x[[census_date]] %in% c(census_date_1, census_date_2),]
+  x_fil <- x[x[[census]] %in% c(t0, tT),]
 
   # Estimate number of unobserved recruits in census interval
-  unobs_rec <- unobsRec(x_fil, census_date = census_date, 
-    census_date_1 = census_date_1, census_date_2 = census_date_2,
-    return_interm = FALSE)
+  unobs_rec <- unobsRec(x_fil, t0 = t0, tT = tT, 
+    group = group, census = census)
 
   # Find observed survivors in final census
-  si <- obsSur(x_fil, ind_id = ind_id, census_date = census_date, 
-    census_date_1 = census_date_1, census_date_2 = census_date_2)
-  x_si <- x_fil[x_fil[[ind_id]] %in% si, 
-    c(ind_id, w, census_date, diam, w_min_diam)]
+  si <- obsID(x_fil, type = "sur", group = group, census = census, 
+    t0 = t0, tT = tT)
+  x_si <- merge(x_fil, si)
 
   # Subset individuals to smallest size class
   x_si_min <- x_si[x_si[[diam]] >= min_size_class[1] & 
@@ -77,9 +81,9 @@ unobsRecGrowth <- function(x, w = "diam", ind_id = "stem_id",
 
   # Find median growth rate of survivors in smallest diam size class 
   # Between two censuses
-  si_growth_median <- median(
-    indGrowth(x_si_min, w = w, ind_id = ind_id, 
-      census_date_1 = census_date_1, census_date_2 = census_date_2), 
+  si_growth_median <- stats::median(
+    indGrowth(x_si_min, w = w, group = group, census = census,
+      t0 = t0, tT = tT), 
     na.rm = TRUE)
 
   # Find median w of those stems at minimum diameter threshold

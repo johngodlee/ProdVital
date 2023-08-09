@@ -6,7 +6,8 @@
 #' @param z final value
 #' @param t census interval
 #'
-#' @export
+#' @keywords internal
+#' @noRd
 #' 
 turnoverEst <- function(y, z, t) {
   f <- function(rho) {

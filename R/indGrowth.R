@@ -1,59 +1,78 @@
-#' Calculate stem growth increment for a single group over a single census interval
+#' Calculate growth increments 
+#' 
+#' `r descrip_table()` to calculate the growth increment of each individual
+#' given a measure of individual size (`w`).
 #'
-#' @param x dataframe of SEOSAW stem data 
-#' @param w column name of value from which to calculate growth in \code{x}
-#' @param ind_id column name of individual IDs 
-#' @param census_date column name of census dates 
-#' @param census_date_1 column initial census of interval
-#' @param census_date_2 column final census of interval
+#' @param x `r param_x()`
+#' @param t0 `r param_t0()`
+#' @param tT `r param_tT()`
+#' @param w `r param_w()`
+#' @param group `r param_group()`
+#' @param census `r param_census()`
+#' 
+#' @return 
+#' Named vector of individual growth increment. Names are the concatenation 
+#' (sep = `.`) of all grouping columns provided in `group`.
+#' 
+#' @details 
+#' `r details_group()`
+#' 
+#' `r details_t0_tT()`
 #'
-#' @return vector of individual growth increment
+#' @examples
+#' data(bicuar)
+#' 
+#' indGrowth(bicuar, t0 = "2019", tT = "2021", w = "agb", 
+#'   group = "stem_id", census = "census_date")
 #' 
 #' @export
 #' 
-indGrowth <- function(x, w = "diam", ind_id = "stem_id",
-  census_date = "census_date", census_date_1, census_date_2) {
+indGrowth <- function(x, t0, tT, w, group, census) {
 
-  # Convert to dataframe
+  # Assert as dataframe
   x <- as.data.frame(x)
 
   # Calculate census interval
-  int <- as.numeric(census_date_2) - as.numeric(census_date_1)
+  int <- as.numeric(tT) - as.numeric(t0)
 
   # Stop is interval is negative
   if (int < 0) { 
-    stop("census dates must be in chronological order")
+    stop("Census dates must be in chronological order")
   }
 
   # Stop if any columns not recognised
-  if (any(!c(w, ind_id, census_date) %in% names(x))) {
+  if (any(!c(w, group, census) %in% names(x))) {
     stop("Some columns not present in x")
   }
 
   # Subset to censuses of interest
-  x_fil <- x[x[[census_date]] %in% c(census_date_1, census_date_2),]
+  x_fil <- x[x[[census]] %in% c(t0, tT),]
+
+  # Stop if a census is missing
+ if (!all(c(t0, tT) %in% x[[census]])) {
+    stop("One or more censuses is missing from data")
+  }
 
   # Find individuals present in both censuses
-  si <- obsSur(x_fil, ind_id = ind_id, census_date = census_date,
-    census_date_1 = census_date_1, census_date_2 = census_date_2)
+  si <- obsID(x_fil, type = "sur", group = group, census = census,
+    t0 = t0, tT = tT)
 
   # Filter to survivors
-  x_si <- x_fil[x_fil[[ind_id]] %in% si,]
+  x_si <- merge(x_fil, si) 
 
-  # Split by stem ID
-  x_split <- split(x_si, x_si[[ind_id]])
+  # Filter to first and last census
+  x_si0 <- x_si[x_si[[census]] == t0,]
+  x_sit <- x_si[x_si[[census]] == tT,]
 
-  # All should have two rows
-  stopifnot(all(unlist(lapply(x_split, nrow)) == 2))
+  # order by group
+  x_si0_ord <- x_si0[order(interaction(x_si0[,group])),]
+  x_sit_ord <- x_sit[order(interaction(x_sit[,group])),]
 
-  # Calculate growth rate of each stem
-  out <- unlist(lapply(x_split, function(y) { 
-    # Order by census date
-    y_ord <- y[order(y[[census_date]]),]
+  # diff
+  out <- x_sit_ord[[w]] - x_si0_ord[[w]]
 
-    # Calculate stem growth
-    y_ord[[w]][2] - y_ord[[w]][1]
-  }))
+  # Add names
+  names(out) <- interaction(x_si0_ord[,group])
 
   # Return
   return(out)

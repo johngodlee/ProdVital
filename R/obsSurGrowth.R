@@ -1,26 +1,35 @@
-#' Estimate growth of individuals which survived between two censuses
+#' Calculate growth from individuals which survived between two censuses
 #'
-#' @param x dataframe of stem measurements
-#' @param w column name of value from which to calculate growth in \code{x}
-#' @param ind_id column name of individual IDs in code{x}
-#' @param census_date column name of census dates in code{x}
-#' @param census_date_1 column initial census of interval
-#' @param census_date_2 column final census of interval
+#' `r descrip_table()` `r descrip_gro("calculate", "growth", "survived")`
 #'
-#' @return total productivity from observed growth of survivors
+#' @param x `r param_x()`
+#' @param t0 `r param_t0()`
+#' @param tT `r param_tT()`
+#' @param w `r param_w()`
+#' @param group `r param_group()`
+#' @param census `r param_census()`
+#'
+#' @return 
+#' `r details_obs_sum()` growth from individuals which survived.
 #' 
-#' @details These are stems which were observed as alive in both censuses
+#' @details
+#' `r details_group()`
+#'
+#' @examples
+#' data(bicuar)
+#' 
+#' obsSurGrowth(bicuar, "2019", "2021", w = "diam", 
+#'   group = "stem_id", census = "census_date")
 #' 
 #' @export
 #' 
-obsSurGrowth <- function(x, w = "diam", ind_id = "stem_id", 
-  census_date = "census_date", census_date_1, census_date_2) {
+obsSurGrowth <- function(x, t0, tT, w, group, census) {
 
   # Convert potential tibble to dataframe
   x <- as.data.frame(x)
 
   # Find census interval
-  int <- as.numeric(census_date_2) - as.numeric(census_date_1)
+  int <- as.numeric(tT) - as.numeric(t0)
 
   # Stop is interval is negative
   if (int < 0) { 
@@ -28,24 +37,23 @@ obsSurGrowth <- function(x, w = "diam", ind_id = "stem_id",
   }
 
   # Subset to censuses of interest
-  x_fil <- x[x[[census_date]] %in% c(census_date_1, census_date_2),]
+  x_fil <- x[x[[census]] %in% c(t0, tT),]
 
   # Find survivors
-  si <- obsSur(x_fil, ind_id = ind_id, census_date = census_date, 
-        census_date_1 = census_date_1, census_date_2 = census_date_2)
+  si <- obsID(x_fil, type = "sur", group = group, census = census, 
+        t0 = t0, tT = tT)
 
   # Filter to survivors
-  x_si <- x_fil[x_fil[[ind_id]] %in% si, 
-    c(ind_id, w, census_date)]
+  x_si <- merge(x_fil, si)
 
   # All stems have two measurements
-  stopifnot(all(table(x_si[[ind_id]]) == 2))
+  stopifnot(all(table(interaction(x_si[,group, drop = FALSE])) == 2))
 
   # Split into first and last census groups and order by stem ID
-  x_cen1 <- x_si[x_si[[census_date]] == census_date_1,]
-  x_cen2 <- x_si[x_si[[census_date]] == census_date_2,]
-  x_cen1_w <- x_cen1[order(x_cen1[[ind_id]]), w]
-  x_cen2_w <- x_cen2[order(x_cen2[[ind_id]]), w]
+  x_cen1 <- x_si[x_si[[census]] == t0,]
+  x_cen2 <- x_si[x_si[[census]] == tT,]
+  x_cen1_w <- x_cen1[order(interaction(x_cen1[, group, drop = FALSE])), w]
+  x_cen2_w <- x_cen2[order(interaction(x_cen2[, group, drop = FALSE])), w]
 
   # Calculate woody productivity, i.e. growth of stems
   w_diff <- x_cen2_w - x_cen1_w

@@ -1,0 +1,17 @@
+Package: ProdVital
+Title: Productivity and vital rates from plot data
+Version: 0.1
+Authors@R: 
+    person(given = "John L.", family = "Godlee", 
+		email = "johngodlee@gmail.com", role = c("aut", "cre"))
+Description: 
+	This package is designed to analyse tree stem phyto-demographic data from
+	plots measured at discrete time points (censuses).
+	1. Calculate individual stem growth rates.
+	2. Identify survivors, new recruits and deaths.
+	3. Estimate rates of productivity using equations from Kohyama et al. (2019) and Talbot et al. (2014).
+	4. Estimate vital rates using equations from Kohyama et al. (2018).
+License: MIT + file LICENSE
+Encoding: UTF-8
+Roxygen: list(markdown = TRUE)
+RoxygenNote: 7.2.3
