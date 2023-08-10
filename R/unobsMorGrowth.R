@@ -18,10 +18,10 @@
 #' `r details_group()`
 #'
 #' @examples
-#' data(bicuar)
+#' data(bicuar_clean)
 #' 
-#' unobsMorGrowth(bicuar, "2019", "2021", w = "diam", 
-#'   group = "stem_id", census = "census_date", diam = "diam")
+#' unobsMorGrowth(bicuar_clean, "2019", "2021", w = "diam", 
+#'   group = c("plot_id", "stem_id"), census = "census_date", diam = "diam")
 #' 
 #' @importFrom stats median
 #' 
@@ -84,7 +84,7 @@ unobsMorGrowth <- function(x, t0, tT, w, group, census,
   # Calculate median growth rate of survivors in all size classes
   si_class_median_growth <- lapply(x_si_split, function(y) {
     stats::median(
-      indGrowth(y, w = w, group = group, census = census, 
+      obsSurGrowth(y, w = w, group = group, census = census, 
         t0 = t0, tT = tT), 
       na.rm = TRUE)
   })
@@ -131,7 +131,10 @@ unobsMorGrowth <- function(x, t0, tT, w, group, census,
   names(x_cen2) <- c(group, w)
 
   # Calculate woody productivity, 
-  out <- sum(x_cen2[[w]] - x_cen1[[w]], na.rm = TRUE)
+  out <- x_cen2[[w]] - x_cen1[[w]]
+
+  # Add names
+  names(out) <- interaction(x_cen1[,group])
 
   # Return
   return(out)

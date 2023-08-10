@@ -20,7 +20,7 @@ obsMorLoss(x, t0, tT, w, group, census)
 \item{census}{column name of census dates in \code{x}}
 }
 \value{
-Numeric value of the sum of all observed loss from individuals which died.
+Named vector of individualobserved loss from individuals which died.
 }
 \description{
 This function acts on a datafame (\code{x}) of individuals (\code{group}) measured at two time points (\code{t0}, \code{tT}, \code{census}) `r descrip_gro("calculate", "loss", "died")
@@ -29,9 +29,9 @@ This function acts on a datafame (\code{x}) of individuals (\code{group}) measur
 \code{group} can be a vector of multiple character strings which, when combined, uniquely define each individual.
 }
 \examples{
-data(bicuar)
+data(bicuar_clean)
 
-obsMorLoss(bicuar, "2019", "2021", w = "agb", 
-  group = "stem_id", census = "census_date")
+obsMorLoss(bicuar_clean, "2019", "2021", w = "agb", 
+  group = c("plot_id", "stem_id"), census = "census_date")
  
 }

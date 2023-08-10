@@ -38,12 +38,13 @@
 #' `r details_group()`
 #' 
 #' @examples
-#' data(bicuar)
+#' data(bicuar_clean)
+#' bicuar_p1 <- bicuar_clean[bicuar_clean$plot_id == "ABG_5",]
 #' 
-#' vitalKohyama(bicuar, "2019", "2021", group = "stem_id", 
+#' vitalKohyama(bicuar_p1, "2019", "2021", group = "stem_id", 
 #'   census = "census_date", plot_area = 1)
 #' 
-#' vitalKohyama(bicuar, "2019", "2021", group = "stem_id", w = "agb",
+#' vitalKohyama(bicuar_p1, "2019", "2021", group = "stem_id", w = "agb",
 #'   census = "census_date", plot_area = 1)
 #' 
 #' @export

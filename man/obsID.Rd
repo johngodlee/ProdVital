@@ -30,16 +30,14 @@ point), or died (measured only at the initial time point).
 }
 \details{
 \code{group} can be a vector of multiple character strings which, when combined, uniquely define each individual.
-
-\code{t0} and \code{tT} by default are years.
 }
 \examples{
-data(bicuar)
+data(bicuar_clean)
 
-obsID(bicuar, "2019", "2021", 
-  group = "stem_id", census = "census_date")
+obsID(bicuar_clean, "2019", "2021", 
+  group = c("plot_id", "stem_id"), census = "census_date")
 
-obsID(bicuar, "2019", "2021", type = "mor", 
-  group = "stem_id", census = "census_date")
+obsID(bicuar_clean, "2019", "2021", type = "mor", 
+  group = c("plot_id", "stem_id"), census = "census_date")
 
 }

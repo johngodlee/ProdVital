@@ -10,15 +10,16 @@
 #' @param census `r param_census()`
 #'
 #' @return 
-#' `details_obs_sum(un = TRUE)` unobserved recruits.
+#' `details_obs_sum(un = TRUE)` recruits.
 #' 
 #' @details
 #' `r details_group()`
 #' 
 #' @examples
-#' data(bicuar)
+#' data(bicuar_clean)
 #' 
-#' unobsRec(bicuar, "2019", "2021", group = "stem_id", census = "census_date")
+#' unobsRec(bicuar_clean, "2019", "2021", 
+#'   group = "stem_id", census = "census_date")
 #' 
 #' @export
 #' 

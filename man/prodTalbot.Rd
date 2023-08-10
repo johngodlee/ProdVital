@@ -70,32 +70,33 @@ This function acts on a datafame (\code{x}) of individuals (\code{group}) measur
 \details{
 \code{group} can be a vector of multiple character strings which, when combined, uniquely define each individual.
 
-If \code{rec_method == 'thresh'}, \code{w_min_diam} must be defined. If \code{rec_method == 'extrap'}, \code{diam}, \code{min_size_class}, \code{min_diam_thresh} and \code{growth_percentile} must be defined.
+If \code{rec_method = 'thresh'}, \code{w_min_diam} must be defined. If \code{rec_method = 'extrap'}, \code{diam}, \code{min_size_class}, \code{min_diam_thresh} and \code{growth_percentile} must be defined.
 
-Talbot et al. (2014) recommend a value of 0.86 for \code{growth_percentile} if \code{rec_method == 'extrap'}.
+Talbot et al. (2014) recommend a value of 0.86 for \code{growth_percentile} if \code{rec_method = 'extrap'}.
 }
 \examples{
-data(bicuar)
+data(bicuar_clean)
+bicuar_p1 <- bicuar_clean[bicuar_clean$plot_id == "ABG_5",]
 
-bicuar$agb_min <- runif(nrow(bicuar))
-prodTalbot(bicuar, "2019", "2021", w = "agb", diam = "diam",
+bicuar_p1$agb_min <- runif(nrow(bicuar_p1))
+prodTalbot(bicuar_p1, "2019", "2021", w = "agb", diam = "diam",
   group = "stem_id", census = "census_date", w_min_diam = "agb_min", 
   rec_method = "zero")
 
-prodTalbot(bicuar, "2019", "2021", w = "agb", diam = "diam",
+prodTalbot(bicuar_p1, "2019", "2021", w = "agb", diam = "diam",
   group = "stem_id", census = "census_date", w_min_diam = "agb_min",
   size_class = seq(5, 20, 5), min_size_class = c(5, 10),
   rec_method = "zero")
 
-prodTalbot(bicuar, "2019", "2021", w = "diam", diam = "diam",
+prodTalbot(bicuar_p1, "2019", "2021", w = "diam", diam = "diam",
   group = "stem_id", census = "census_date", w_min_diam = 5, 
   rec_method = "thresh")
 
-prodTalbot(bicuar, "2019", "2021", w = "agb", diam = "diam",
+prodTalbot(bicuar_p1, "2019", "2021", w = "agb", diam = "diam",
   group = "stem_id", census = "census_date", w_min_diam = "agb_min",
   rec_method = "thresh")
 
-prodTalbot(bicuar, "2019", "2021", w = "agb", diam = "diam", 
+prodTalbot(bicuar_p1, "2019", "2021", w = "agb", diam = "diam", 
   group = "stem_id", census = "census_date", w_min_diam = "agb_min", 
   rec_method = "extrap", min_diam_thresh = 5, growth_percentile = 0.86)
   

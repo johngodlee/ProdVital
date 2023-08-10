@@ -45,7 +45,7 @@ obsRecGrowth(
 \item{w_min_diam}{optional, column name or a vector of length 1 defining the estimated value of \code{w} in \code{x} at the minimum diameter threshold of the plot}
 }
 \value{
-Numeric value of the sum of all observed growth from individuals which recruited.
+Named vector of individualobserved growth from individuals which recruited.
 }
 \description{
 This function acts on a datafame (\code{x}) of individuals (\code{group}) measured at two time points (\code{t0}, \code{tT}, \code{census}) to calculate the growth from individuals which recruited, given a measure of individual size (\code{w})
@@ -53,28 +53,30 @@ This function acts on a datafame (\code{x}) of individuals (\code{group}) measur
 \details{
 \code{group} can be a vector of multiple character strings which, when combined, uniquely define each individual.
 
-If \code{rec_method == 'thresh'}, \code{w_min_diam} must be defined. If \code{rec_method == 'extrap'}, \code{diam}, \code{min_size_class}, \code{min_diam_thresh} and \code{growth_percentile} must be defined.
+If \code{rec_method = 'thresh'}, \code{w_min_diam} must be defined. If \code{rec_method = 'extrap'}, \code{diam}, \code{min_size_class}, \code{min_diam_thresh} and \code{growth_percentile} must be defined.. Note that when \code{rec_method = "extrap"}, only the
+recruits which were estimated to be larger than the plot minimum diameter
+threshold in the initial census are returned.
 
-Talbot et al. (2014) recommend a value of 0.86 for \code{growth_percentile} if \code{rec_method == 'extrap'}.
+Talbot et al. (2014) recommend a value of 0.86 for \code{growth_percentile} if \code{rec_method = 'extrap'}.
 }
 \examples{
-data(bicuar)
+data(bicuar_clean)
 
-obsRecGrowth(bicuar, "2019", "2021", w = "diam",
-  group = "stem_id", census = "census_date",
+obsRecGrowth(bicuar_clean, "2019", "2021", w = "diam",
+  group = c("plot_id", "stem_id"), census = "census_date",
   rec_method = "zero")
 
-obsRecGrowth(bicuar, "2019", "2021", w = "diam",
-  group = "stem_id", census = "census_date",
+obsRecGrowth(bicuar_clean, "2019", "2021", w = "diam",
+  group = c("plot_id", "stem_id"), census = "census_date",
   rec_method = "thresh", w_min_diam = 5)
 
-bicuar$agb_min <- runif(nrow(bicuar))
-obsRecGrowth(bicuar, "2019", "2021", w = "agb",
-  group = "stem_id", census = "census_date",
+bicuar_clean$agb_min <- runif(nrow(bicuar_clean))
+obsRecGrowth(bicuar_clean, "2019", "2021", w = "agb",
+  group = c("plot_id", "stem_id"), census = "census_date",
   rec_method = "thresh", w_min_diam = "agb_min")
 
-obsRecGrowth(bicuar, "2019", "2021", w = "diam",
-  group = "stem_id", census = "census_date",
+obsRecGrowth(bicuar_clean, "2019", "2021", w = "diam",
+  group = c("plot_id", "stem_id"), census = "census_date",
   rec_method = "extrap", diam = "diam", min_size_class = c(5, 10),
   min_diam_thresh = 5, growth_percentile = 0.86)
 

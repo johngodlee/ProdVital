@@ -18,7 +18,7 @@ unobsRec(x, t0, tT, group, census)
 \item{census}{column name of census dates in \code{x}}
 }
 \value{
-\code{details_obs_sum(un = TRUE)} unobserved recruits.
+\code{details_obs_sum(un = TRUE)} recruits.
 }
 \description{
 This function acts on a datafame (\code{x}) of individuals (\code{group}) measured at two time points (\code{t0}, \code{tT}, \code{census}) to estimate the number of recruits which recruited and
@@ -28,8 +28,9 @@ died within a single census interval.
 \code{group} can be a vector of multiple character strings which, when combined, uniquely define each individual.
 }
 \examples{
-data(bicuar)
+data(bicuar_clean)
 
-unobsRec(bicuar, "2019", "2021", group = "stem_id", census = "census_date")
+unobsRec(bicuar_clean, "2019", "2021", 
+  group = "stem_id", census = "census_date")
 
 }

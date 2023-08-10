@@ -16,10 +16,10 @@
 #' `r details_group()`
 #'
 #' @examples
-#' data(bicuar)
+#' data(bicuar_clean)
 #' 
-#' obsSurGrowth(bicuar, "2019", "2021", w = "diam", 
-#'   group = "stem_id", census = "census_date")
+#' obsSurGrowth(bicuar_clean, "2019", "2021", w = "diam", 
+#'   group = c("plot_id", "stem_id"), census = "census_date")
 #' 
 #' @export
 #' 
@@ -47,19 +47,21 @@ obsSurGrowth <- function(x, t0, tT, w, group, census) {
   x_si <- merge(x_fil, si)
 
   # All stems have two measurements
-  stopifnot(all(table(interaction(x_si[,group, drop = FALSE])) == 2))
+  stopifnot(all(table(as.character(interaction(x_si[,group, drop = TRUE]))) == 2))
 
-  # Split into first and last census groups and order by stem ID
-  x_cen1 <- x_si[x_si[[census]] == t0,]
-  x_cen2 <- x_si[x_si[[census]] == tT,]
-  x_cen1_w <- x_cen1[order(interaction(x_cen1[, group, drop = FALSE])), w]
-  x_cen2_w <- x_cen2[order(interaction(x_cen2[, group, drop = FALSE])), w]
+  # Filter to first and last census
+  x_si0 <- x_si[x_si[[census]] == t0,]
+  x_sit <- x_si[x_si[[census]] == tT,]
 
-  # Calculate woody productivity, i.e. growth of stems
-  w_diff <- x_cen2_w - x_cen1_w
+  # order by group
+  x_si0_ord <- x_si0[order(interaction(x_si0[,group])),]
+  x_sit_ord <- x_sit[order(interaction(x_sit[,group])),]
 
-  # Sum of AGB growth per stem
-  out <- sum(w_diff, na.rm = TRUE)
+  # diff
+  out <- x_sit_ord[[w]] - x_si0_ord[[w]]
+
+  # Add names
+  names(out) <- interaction(x_si0_ord[,group])
 
   # Return
   return(out)

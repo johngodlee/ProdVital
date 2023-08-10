@@ -59,19 +59,15 @@ param_type <- function() {
 }
 
 details_rec_method <- function() {
-  "If `rec_method == 'thresh'`, `w_min_diam` must be defined. If `rec_method == 'extrap'`, `diam`, `min_size_class`, `min_diam_thresh` and `growth_percentile` must be defined."
+  "If `rec_method = 'thresh'`, `w_min_diam` must be defined. If `rec_method = 'extrap'`, `diam`, `min_size_class`, `min_diam_thresh` and `growth_percentile` must be defined."
 }
 
 details_growth_percentile <- function() {
-  "Talbot et al. (2014) recommend a value of 0.86 for `growth_percentile` if `rec_method == 'extrap'`."
+  "Talbot et al. (2014) recommend a value of 0.86 for `growth_percentile` if `rec_method = 'extrap'`."
 }
 
 details_group <- function() {
   "`group` can be a vector of multiple character strings which, when combined, uniquely define each individual."
-}
-
-details_t0_tT <- function() {
-  "`t0` and `tT` by default are years."
 }
 
 details_obs_sum <- function(un = FALSE) {
@@ -81,7 +77,7 @@ details_obs_sum <- function(un = FALSE) {
     un_string <- ""
   }
 
-  paste0("Numeric value of the sum of all ", un_string, "observed")
+  paste0("Named vector of individual", un_string, "observed")
 }
 
 descrip_table <- function() {

@@ -14,20 +14,18 @@
 #' @details 
 #' `r details_group()`
 #' 
-#' `r details_t0_tT()`
-#'
 #' @return 
 #' Dataframe or list of dataframes of IDs for individuals which recruited,
 #' survived, or died, between censuses. 
 #' 
 #' @examples
-#' data(bicuar)
+#' data(bicuar_clean)
 #' 
-#' obsID(bicuar, "2019", "2021", 
-#'   group = "stem_id", census = "census_date")
+#' obsID(bicuar_clean, "2019", "2021", 
+#'   group = c("plot_id", "stem_id"), census = "census_date")
 #' 
-#' obsID(bicuar, "2019", "2021", type = "mor", 
-#'   group = "stem_id", census = "census_date")
+#' obsID(bicuar_clean, "2019", "2021", type = "mor", 
+#'   group = c("plot_id", "stem_id"), census = "census_date")
 #' 
 #' @export
 #' 

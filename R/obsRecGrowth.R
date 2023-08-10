@@ -21,28 +21,30 @@
 #' @details 
 #' `r details_group()`
 #' 
-#' `r details_rec_method()`
+#' `r details_rec_method()`. Note that when `rec_method = "extrap"`, only the
+#' recruits which were estimated to be larger than the plot minimum diameter
+#' threshold in the initial census are returned.
 #' 
 #' `r details_growth_percentile()`
 #'
 #' @examples
-#' data(bicuar)
+#' data(bicuar_clean)
 #' 
-#' obsRecGrowth(bicuar, "2019", "2021", w = "diam",
-#'   group = "stem_id", census = "census_date",
+#' obsRecGrowth(bicuar_clean, "2019", "2021", w = "diam",
+#'   group = c("plot_id", "stem_id"), census = "census_date",
 #'   rec_method = "zero")
 #' 
-#' obsRecGrowth(bicuar, "2019", "2021", w = "diam",
-#'   group = "stem_id", census = "census_date",
+#' obsRecGrowth(bicuar_clean, "2019", "2021", w = "diam",
+#'   group = c("plot_id", "stem_id"), census = "census_date",
 #'   rec_method = "thresh", w_min_diam = 5)
 #' 
-#' bicuar$agb_min <- runif(nrow(bicuar))
-#' obsRecGrowth(bicuar, "2019", "2021", w = "agb",
-#'   group = "stem_id", census = "census_date",
+#' bicuar_clean$agb_min <- runif(nrow(bicuar_clean))
+#' obsRecGrowth(bicuar_clean, "2019", "2021", w = "agb",
+#'   group = c("plot_id", "stem_id"), census = "census_date",
 #'   rec_method = "thresh", w_min_diam = "agb_min")
 #' 
-#' obsRecGrowth(bicuar, "2019", "2021", w = "diam",
-#'   group = "stem_id", census = "census_date",
+#' obsRecGrowth(bicuar_clean, "2019", "2021", w = "diam",
+#'   group = c("plot_id", "stem_id"), census = "census_date",
 #'   rec_method = "extrap", diam = "diam", min_size_class = c(5, 10),
 #'   min_diam_thresh = 5, growth_percentile = 0.86)
 #' 
@@ -115,67 +117,70 @@ obsRecGrowth <- function(x, t0, tT, w, group, census,
   method_list <- vector("list", length(rec_method))
   names(method_list) <- rec_method
 
-  # If there are recruits:
-  if (length(ri) > 0) {
-    # Filter to recruits
-    x_ri <- merge(x_fil, ri)
+  # Filter to recruits
+  x_ri <- merge(x_fil, ri)
 
-    # Filter recruits to final census
-    x_ri_fil <- x_ri[x_ri[[census]] == tT,]
+  # Filter recruits to final census
+  x_ri_fil <- x_ri[x_ri[[census]] == tT,]
 
-    # Method: Assume grew from 0 since previous census (zero)
-    if ("zero" %in% rec_method) {
-      # Calculate sum of growth
-      BD <- sum(x_ri_fil[[w]], na.rm = TRUE)
+  # Method: Assume grew from 0 since previous census (zero)
+  if ("zero" %in% rec_method) {
+    # Calculate sum of growth
+    BD <- x_ri_fil[[w]]
 
-      # Create list
-      method_list[["zero"]] <- BD
-    }
+    # Add names
+    names(BD) <- interaction(x_ri_fil[,group])
 
-    # Method: Assume grew from min. diam. thresh. 
-    if ("thresh" %in% rec_method) {
-      # Find change
-      BD <- sum(x_ri_fil[[w]] - x_ri_fil[[w_min_diam]], na.rm = TRUE)
+    # Create list
+    method_list[["zero"]] <- BD
+  }
 
-      # Create list
-      method_list[["thresh"]] <- BD
-    }
+  # Method: Assume grew from min. diam. thresh. 
+  if ("thresh" %in% rec_method) {
+    # Find change
+    BD <- x_ri_fil[[w]] - x_ri_fil[[w_min_diam]]
 
-    # Extrap. diam. to first census using percentile of small stem growth rate (extrap)
-    if ("extrap" %in% rec_method) {
-      # Find survivors
-      si <- obsID(x_fil, type = "sur", group = group, census = census, 
-        t0 = t0, tT = tT)
+    # Add names
+    names(BD) <- interaction(x_ri_fil[,group])
 
-      # Filter to survivors
-      x_si <- merge(x_fil, si)
+    # Create list
+    method_list[["thresh"]] <- BD
+  }
 
-      # Find stems in smallest diameter size class
-      x_si_min <- x_si[x_si[[diam]] >= min_size_class[1] & 
-        x_si[[diam]] < min_size_class[2],]
+  # Extrap. diam. to first census using percentile of small stem growth rate (extrap)
+  if ("extrap" %in% rec_method) {
+    # Find survivors
+    si <- obsID(x_fil, type = "sur", group = group, census = census, 
+      t0 = t0, tT = tT)
 
-      # Find percentile growth rate of survivors in smallest diam size class 
-      si_diam_growth_median <- stats::quantile(
-        indGrowth(x_si_min, w = diam, group = group, census = census,
-          t0 = t0, tT = tT), 
-        growth_percentile)
+    # Filter to survivors
+    x_si <- merge(x_fil, si)
 
-      # For each stem, extrapolate back the stem diameter 
-      x_ri_fil$diam_cen1 <- x_ri_fil$diam - si_diam_growth_median
+    # Find stems in smallest diameter size class
+    x_si_min <- x_si[x_si[[diam]] >= min_size_class[1] & 
+      x_si[[diam]] < min_size_class[2],]
 
-      # Filter to extrapolated diameters > min. diam. thresh
-      x_ri_gemin <- x_ri_fil[x_ri_fil$diam_cen1 > min_diam_thresh,]
+    # Find out how much they grew by in terms of `w` 
+    si_diam_growth <- obsSurGrowth(x_si_min, t0 = t0, tT = tT, w = diam, 
+      group = group, census = census)
 
-      # Find change
-      BD <- sum(x_ri_gemin[[w]], na.rm = TRUE)
+    # Quantile growth increment of survivors in smallest diam size class 
+    si_diam_growth_quant <- stats::quantile(si_diam_growth, growth_percentile)
 
-      # Create list
-      method_list[["extrap"]] <- BD
-    }
-  # If no recruits
-  } else {
-    # Fill with zero
-    method_list[seq_along(method_list)] <- 0
+    # For each stem, extrapolate back the stem diameter using the quantile growth increment
+    x_ri_fil$diam_cen1 <- x_ri_fil$diam - si_diam_growth_quant 
+
+    # Filter to extrapolated diameters > min. diam. thresh
+    x_ri_gemin <- x_ri_fil[x_ri_fil$diam_cen1 >= min_diam_thresh,]
+
+    # Find change
+    BD <- x_ri_gemin[[w]]
+
+    # Add names
+    names(BD) <- interaction(x_ri_gemin[,group])
+
+    # Create list
+    method_list[["extrap"]] <- BD
   }
 
   # If only one method, don't return nested list

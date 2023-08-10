@@ -38,27 +38,28 @@
 #' `r details_growth_percentile()`
 #'
 #' @examples
-#' data(bicuar)
+#' data(bicuar_clean)
+#' bicuar_p1 <- bicuar_clean[bicuar_clean$plot_id == "ABG_5",]
 #' 
-#' bicuar$agb_min <- runif(nrow(bicuar))
-#' prodTalbot(bicuar, "2019", "2021", w = "agb", diam = "diam",
+#' bicuar_p1$agb_min <- runif(nrow(bicuar_p1))
+#' prodTalbot(bicuar_p1, "2019", "2021", w = "agb", diam = "diam",
 #'   group = "stem_id", census = "census_date", w_min_diam = "agb_min", 
 #'   rec_method = "zero")
 #' 
-#' prodTalbot(bicuar, "2019", "2021", w = "agb", diam = "diam",
+#' prodTalbot(bicuar_p1, "2019", "2021", w = "agb", diam = "diam",
 #'   group = "stem_id", census = "census_date", w_min_diam = "agb_min",
 #'   size_class = seq(5, 20, 5), min_size_class = c(5, 10),
 #'   rec_method = "zero")
 #' 
-#' prodTalbot(bicuar, "2019", "2021", w = "diam", diam = "diam",
+#' prodTalbot(bicuar_p1, "2019", "2021", w = "diam", diam = "diam",
 #'   group = "stem_id", census = "census_date", w_min_diam = 5, 
 #'   rec_method = "thresh")
 #' 
-#' prodTalbot(bicuar, "2019", "2021", w = "agb", diam = "diam",
+#' prodTalbot(bicuar_p1, "2019", "2021", w = "agb", diam = "diam",
 #'   group = "stem_id", census = "census_date", w_min_diam = "agb_min",
 #'   rec_method = "thresh")
 #' 
-#' prodTalbot(bicuar, "2019", "2021", w = "agb", diam = "diam", 
+#' prodTalbot(bicuar_p1, "2019", "2021", w = "agb", diam = "diam", 
 #'   group = "stem_id", census = "census_date", w_min_diam = "agb_min", 
 #'   rec_method = "extrap", min_diam_thresh = 5, growth_percentile = 0.86)
 #'   
@@ -89,25 +90,25 @@ prodTalbot <- function(x, t0, tT, w, diam, group, census,
   }
 
   # Calculate growth of survivors
-  obs_sur_growth <- obsSurGrowth(x_fil, w = w, group = group, 
+  obs_sur_growth <- sum(obsSurGrowth(x_fil, w = w, group = group, 
     census = census,
-    t0 = t0, tT = tT)
+    t0 = t0, tT = tT))
 
   # Calculate growth of observed recruits
-  obs_rec_growth <- obsRecGrowth(x_fil, w = w, group = group, 
+  obs_rec_growth <- sum(obsRecGrowth(x_fil, w = w, group = group, 
     diam = diam, census = census,
     growth_percentile = growth_percentile,
     min_size_class = min_size_class,
     rec_method = rec_method,
     min_diam_thresh = min_diam_thresh,
     t0 = t0, tT = tT,
-    w_min_diam = w_min_diam)
+    w_min_diam = w_min_diam))
 
   # Calculate unobserved growth of stems which died
-  unobs_mor_growth <- unobsMorGrowth(x_fil, w = w, group = group, 
+  unobs_mor_growth <- sum(unobsMorGrowth(x_fil, w = w, group = group, 
     diam = diam, census = census,
     size_class = size_class,
-    t0 = t0, tT = tT)
+    t0 = t0, tT = tT))
 
   # Calculate unobserved growth of unobserved recruits
   unobs_rec_growth <- unobsRecGrowth(x_fil, t0 = t0, tT = tT, 
@@ -115,9 +116,9 @@ prodTalbot <- function(x, t0, tT, w, diam, group, census,
     min_size_class = min_size_class, w_min_diam = w_min_diam)
 
   # Calculate observed loss to mortality
-  obs_mor_loss <- obsMorLoss(x_fil, w = w, group = group, 
+  obs_mor_loss <- sum(obsMorLoss(x_fil, w = w, group = group, 
     census = census, 
-    t0 = t0, tT = tT)
+    t0 = t0, tT = tT))
 
   # Total change = growth of survivors + growth of recruits
   AGWP_obs <- obs_sur_growth + obs_rec_growth

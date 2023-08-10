@@ -19,9 +19,10 @@
 #' `r details_group()`
 #' 
 #' @examples
-#' data(bicuar)
+#' data(bicuar_clean)
+#' bicuar_p1 <- bicuar_clean[bicuar_clean$plot_id == "ABG_5",]
 #' 
-#' unobsRecGrowth(bicuar, "2019", "2021", w = "diam", group = "stem_id", 
+#' unobsRecGrowth(bicuar_p1, "2019", "2021", w = "diam", group = "stem_id", 
 #'   census = "census_date", diam = "diam", min_size_class = c(5, 10), 
 #'   w_min_diam = 5)
 #' 
@@ -82,7 +83,7 @@ unobsRecGrowth <- function(x, t0, tT, w, group, census, diam,
   # Find median growth rate of survivors in smallest diam size class 
   # Between two censuses
   si_growth_median <- stats::median(
-    indGrowth(x_si_min, w = w, group = group, census = census,
+    obsSurGrowth(x_si_min, w = w, group = group, census = census,
       t0 = t0, tT = tT), 
     na.rm = TRUE)
 

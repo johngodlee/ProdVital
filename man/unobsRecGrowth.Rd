@@ -26,7 +26,7 @@ unobsRecGrowth(x, t0, tT, w, group, census, diam, min_size_class, w_min_diam)
 \item{w_min_diam}{column name or a vector of length 1 defining the estimated value of \code{w} in \code{x} at the minimum diameter threshold of the plot}
 }
 \value{
-Numeric value of the sum of all unobserved growth from recruits which died.
+Named vector of individualunobserved growth from recruits which died.
 }
 \description{
 This function acts on a datafame (\code{x}) of individuals (\code{group}) measured at two time points (\code{t0}, \code{tT}, \code{census}) to estimate the growth from individuals which recruited and died, given a measure of individual size (\code{w})
@@ -35,9 +35,10 @@ This function acts on a datafame (\code{x}) of individuals (\code{group}) measur
 \code{group} can be a vector of multiple character strings which, when combined, uniquely define each individual.
 }
 \examples{
-data(bicuar)
+data(bicuar_clean)
+bicuar_p1 <- bicuar_clean[bicuar_clean$plot_id == "ABG_5",]
 
-unobsRecGrowth(bicuar, "2019", "2021", w = "diam", group = "stem_id", 
+unobsRecGrowth(bicuar_p1, "2019", "2021", w = "diam", group = "stem_id", 
   census = "census_date", diam = "diam", min_size_class = c(5, 10), 
   w_min_diam = 5)
 

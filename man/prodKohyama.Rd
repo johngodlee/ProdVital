@@ -65,9 +65,10 @@ This function acts on a datafame (\code{x}) of individuals (\code{group}) measur
 \code{group} can be a vector of multiple character strings which, when combined, uniquely define each individual.
 }
 \examples{
-data(bicuar)
+data(bicuar_clean)
+bicuar_p1 <- bicuar_clean[bicuar_clean$plot_id == "ABG_5",]
 
-prodKohyama(bicuar, "2019", "2021", w = "diam",
+prodKohyama(bicuar_p1, "2019", "2021", w = "diam",
   group = "stem_id", census = "census_date")
 
 }

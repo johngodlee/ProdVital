@@ -20,7 +20,7 @@ obsSurGrowth(x, t0, tT, w, group, census)
 \item{census}{column name of census dates in \code{x}}
 }
 \value{
-Numeric value of the sum of all observed growth from individuals which survived.
+Named vector of individualobserved growth from individuals which survived.
 }
 \description{
 This function acts on a datafame (\code{x}) of individuals (\code{group}) measured at two time points (\code{t0}, \code{tT}, \code{census}) to calculate the growth from individuals which survived, given a measure of individual size (\code{w})
@@ -29,9 +29,9 @@ This function acts on a datafame (\code{x}) of individuals (\code{group}) measur
 \code{group} can be a vector of multiple character strings which, when combined, uniquely define each individual.
 }
 \examples{
-data(bicuar)
+data(bicuar_clean)
 
-obsSurGrowth(bicuar, "2019", "2021", w = "diam", 
-  group = "stem_id", census = "census_date")
+obsSurGrowth(bicuar_clean, "2019", "2021", w = "diam", 
+  group = c("plot_id", "stem_id"), census = "census_date")
 
 }

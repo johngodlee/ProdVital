@@ -16,10 +16,10 @@
 #' `r details_group()`
 #'
 #' @examples
-#' data(bicuar)
+#' data(bicuar_clean)
 #'
-#' obsMorLoss(bicuar, "2019", "2021", w = "agb", 
-#'   group = "stem_id", census = "census_date")
+#' obsMorLoss(bicuar_clean, "2019", "2021", w = "agb", 
+#'   group = c("plot_id", "stem_id"), census = "census_date")
 #'  
 #' @export
 #' 
@@ -45,13 +45,18 @@ obsMorLoss <- function(x, t0, tT, w, group, census) {
 
   # Filter to deaths
   x_di <- merge(x_fil, di)
-  x_loss <- x_di[x_di[[census]] == t0, w]
 
-  # Calculate total loss
-  out <- sum(x_loss, na.rm = TRUE)
+  # All stems have one measurement
+  stopifnot(all(table(as.character(interaction(x_di[,group, drop = FALSE]))) == 1))
+
+  # Get loss
+  out <- x_di[x_di[[census]] == t0, w]
 
   # Should never be negative
-  if (out < 0) { stop("No observed mortality should be <0") }
+  if (any(out < 0)) { stop("No observed mortality should be <0") }
+
+  # Add names
+  names(out) <- interaction(x_di[,group])
 
   # Return
   return(out)

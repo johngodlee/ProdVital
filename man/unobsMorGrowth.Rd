@@ -33,7 +33,7 @@ unobsMorGrowth(
 \item{size_class}{numeric vector containing diameter size class cut points. The largest number will be open ended, e.g. 50+.}
 }
 \value{
-Numeric value of the sum of all unobserved growth from individuals which died.
+Named vector of individualunobserved growth from individuals which died.
 }
 \description{
 This function acts on a datafame (\code{x}) of individuals (\code{group}) measured at two time points (\code{t0}, \code{tT}, \code{census}) to estimate the growth from individuals which died, given a measure of individual size (\code{w})
@@ -42,9 +42,9 @@ This function acts on a datafame (\code{x}) of individuals (\code{group}) measur
 \code{group} can be a vector of multiple character strings which, when combined, uniquely define each individual.
 }
 \examples{
-data(bicuar)
+data(bicuar_clean)
 
-unobsMorGrowth(bicuar, "2019", "2021", w = "diam", 
-  group = "stem_id", census = "census_date", diam = "diam")
+unobsMorGrowth(bicuar_clean, "2019", "2021", w = "diam", 
+  group = c("plot_id", "stem_id"), census = "census_date", diam = "diam")
 
 }
