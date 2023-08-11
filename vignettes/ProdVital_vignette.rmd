@@ -35,7 +35,7 @@ Load the example dataset included in `{ProdVital}`:
 data(bicuar)
 ```
 
-`bicuar` is a dataframe of stem data from two plots in Bicuar National Park, southwest Angola, measured across three censuses. Censuses were conducted in 2019, 2021 and 2023. The original data is real, but it has been adjusted to better illustrate the functionality of `{ProdVital}`. The data is in the SEOSAW style, but with columns removed where they are not relevant to this workflow. Each row is a stem measurement.
+`bicuar` is a dataframe of stem data from two plots in Bicuar National Park, southwest Angola, measured across three censuses. Censuses were conducted in 2019, 2021 and 2023. The original data is real, but it has been adjusted to better illustrate the functionality of `{ProdVital}`. The data is in the SEOSAW style, but with columns removed where they are not relevant to this workflow. Each row is a stem measurement in a given census.
 
 * `plot_id` - ID of the plot
 * `census_date` - Census date of measurement 
