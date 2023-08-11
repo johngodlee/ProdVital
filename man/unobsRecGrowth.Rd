@@ -26,10 +26,10 @@ unobsRecGrowth(x, t0, tT, w, group, census, diam, min_size_class, w_min_diam)
 \item{w_min_diam}{column name or a vector of length 1 defining the estimated value of \code{w} in \code{x} at the minimum diameter threshold of the plot}
 }
 \value{
-Named vector of individualunobserved growth from recruits which died.
+Numeric value with the estimated growth increment of all unobserved recruits.
 }
 \description{
-This function acts on a datafame (\code{x}) of individuals (\code{group}) measured at two time points (\code{t0}, \code{tT}, \code{census}) to estimate the growth from individuals which recruited and died, given a measure of individual size (\code{w})
+This function acts on a datafame (\code{x}) of individuals (\code{group}) measured at two time points (\code{t0}, \code{tT}, \code{census}) to estimate the growth from individuals which recruited and died, given a measure of individual size (\code{w}).
 }
 \details{
 \code{group} can be a vector of multiple character strings which, when combined, uniquely define each individual.

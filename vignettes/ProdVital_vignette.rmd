@@ -35,7 +35,12 @@ Load the example dataset included in `{ProdVital}`:
 data(bicuar)
 ```
 
-`bicuar` is a dataframe of stem data from two plots in Bicuar National Park, southwest Angola, measured across three censuses. Censuses were conducted in 2019, 2021 and 2023. The original data is real, but it has been adjusted to better illustrate the functionality of `{ProdVital}`. The data is in the SEOSAW style, but with columns removed where they are not relevant to this workflow. Each row is a stem measurement in a given census.
+`bicuar` is a dataframe of stem data from two plots in Bicuar National Park,
+southwest Angola, measured across three censuses. Censuses were conducted in
+2019, 2021 and 2023. The original data is real, but it has been adjusted to
+better illustrate the functionality of `{ProdVital}`. The data is in the SEOSAW
+style, but with columns removed where they are not relevant to this workflow.
+Each row is a stem measurement in a given census.
 
 * `plot_id` - ID of the plot
 * `census_date` - Census date of measurement 
@@ -131,17 +136,32 @@ obsSurGrowth(bicuar_clean, t0 = "2019", tT = "2021", w = "diam",
   group = c("plot_id", "stem_id"), census = "census_date")
 ```
 
+With options `full = TRUE`, `obsSurGrowth()` returns a dataframe rather than a
+named vector, which may be easier to join back to the original data using the
+columns in `group`.
 
-Similarly, the `obsMorLoss()` function calculates the loss from stems which died within a census interval. The arguments of the function are identical to `obsSurGrowth()`:
+```{r}
+obsSurGrowth(bicuar_clean, t0 = "2019", tT = "2021", w = "diam", 
+  group = c("plot_id", "stem_id"), census = "census_date", full = TRUE)
+```
+
+Similarly, the `obsMorLoss()` function calculates the loss from stems which
+died within a census interval. The arguments of the function are identical to
+`obsSurGrowth()`:
 
 ```{r}
 obsMorLoss(bicuar_clean, t0 = "2019", tT = "2021", w = "diam", 
   group = c("plot_id", "stem_id"), census = "census_date")
 ```
 
-`obsRecGrowth()` calculates the growth from individuals which recruited within a census interval. 
+`obsRecGrowth()` calculates the growth from individuals which recruited within
+a census interval. 
 
-There are multiple methods for estimating the growth of recruits. The default `rec_method = "zero"`, assumes that the stem grew from a size of zero in the initial census. While this method is very simple, it is often unrealistic in instances where the minimum diameter threshold above which stems are measured is greater than zero. 
+There are multiple methods for estimating the growth of recruits. The default
+`rec_method = "zero"`, assumes that the stem grew from a size of zero in the
+initial census. While this method is very simple, it is often unrealistic in
+instances where the minimum diameter threshold above which stems are measured
+is greater than zero. 
 
 ```{r}
 obsRecGrowth(bicuar_clean, "2019", "2021", w = "diam",
@@ -149,7 +169,10 @@ obsRecGrowth(bicuar_clean, "2019", "2021", w = "diam",
   rec_method = "zero")
 ```
 
-`rec_method = "thresh"` assumes that the stem grew from the minimum diameter threshold of the plot. This method works well when growth is being calculated in terms of diameter, as the value of `w_min_diam` can simply be a numeric value defining the minimum diameter threshold of the plot. 
+`rec_method = "thresh"` assumes that the stem grew from the minimum diameter
+threshold of the plot. This method works well when growth is being calculated
+in terms of diameter, as the value of `w_min_diam` can simply be a numeric
+value defining the minimum diameter threshold of the plot. 
 
 ```{r}
 obsRecGrowth(bicuar_clean, "2019", "2021", w = "diam",
@@ -157,7 +180,11 @@ obsRecGrowth(bicuar_clean, "2019", "2021", w = "diam",
   rec_method = "thresh", w_min_diam = 5)
 ```
 
-When `w` is something other than diameter, biomass for instance, this method requires extra work. In this case, it is necessary to estimate what the biomass of each stem would be if it shrunk down to the diameter of the minimum diameter threshold of the plot. In the example below, biomass is estimated using a simplistic allometric equation.
+When `w` is something other than diameter, biomass for instance, this method
+requires extra work. In this case, it is necessary to estimate what the biomass
+of each stem would be if it shrunk down to the diameter of the minimum diameter
+threshold of the plot. In the example below, biomass is estimated using a
+simplistic allometric equation.
 
 ```{r}
 bicuar_clean$agb_min <- (0.0644 * (pi * (5 / 2) ^ 2) ^ 1.3341) / 1000
@@ -166,7 +193,13 @@ obsRecGrowth(bicuar_clean, "2019", "2021", w = "diam",
   rec_method = "thresh", w_min_diam = "agb_min")
 ```
 
-Finally, `rec_method = "extrap"` uses the average growth rate of the minimum diameter size class to extrapolate the size of the recruit back to its estimated size in the initial census. This method relies on having enough data of sufficient quality to calculate an accurate 'average' growth rate for small stems. `growth_percentile` refers to the percentile of growth rates used to calculate the average growth rate of small stems. The default of 0.86 is recommended by [@Talbot2014].
+Finally, `rec_method = "extrap"` uses the average growth rate of the minimum
+diameter size class to extrapolate the size of the recruit back to its
+estimated size in the initial census. This method relies on having enough data
+of sufficient quality to calculate an accurate 'average' growth rate for small
+stems. `growth_percentile` refers to the percentile of growth rates used to
+calculate the average growth rate of small stems. The default of 0.86 is
+recommended by [@Talbot2014].
 
 ```{r}
 obsRecGrowth(bicuar_clean, "2019", "2021", w = "diam",
@@ -177,14 +210,25 @@ obsRecGrowth(bicuar_clean, "2019", "2021", w = "diam",
 
 # Estimating unseen growth 
 
-To accurately estimate productivity within a given census interval, i.e. the total amount of biomass produced, as well as the observed growth of survivors and the observed growth of recruits it is important to factor in the growth from stems which died some time between the two censuses. [@Talbot2014] provides a method for estimating this growth, assuming that the stems die halfway through the census interval, and that they grow at the median growth rate of their diameter size class.
+To accurately estimate productivity within a given census interval, i.e. the
+total amount of biomass produced, as well as the observed growth of survivors
+and the observed growth of recruits it is important to factor in the growth
+from stems which died some time between the two censuses. [@Talbot2014]
+provides a method for estimating this growth, assuming that the stems die
+halfway through the census interval, and that they grow at the median growth
+rate of their diameter size class.
 
 ```{r}
 unobsMorGrowth(bicuar_clean, "2019", "2021", w = "diam", 
   group = c("plot_id", "stem_id"), census = "census_date", diam = "diam")
 ```
 
-Additionally, there may be some stems which both recruit and then subsequently die within a census interval, meaning they are never measured. Again, [@Talbot2014] provides a method to both estimate the number of unseen recruits which died (`unobsRec()`), and estimate their growth (`unobsRecGrowth()`). This function only provides a single value, so we must subset the data to a single plot and single census interval.
+Additionally, there may be some stems which both recruit and then subsequently
+die within a census interval, meaning they are never measured. Again,
+[@Talbot2014] provides a method to both estimate the number of unseen recruits
+which died (`unobsRec()`), and estimate their growth (`unobsRecGrowth()`). This
+function only provides a single value, so we must subset the data to a single
+plot and single census interval.
 
 ```{r}
 bicuar_p1 <- bicuar_clean %>% 
@@ -199,13 +243,25 @@ unobsRecGrowth(bicuar_p1, "2019", "2021", w = "diam", group = "stem_id",
   min_size_class = c(5, 10), w_min_diam = 5)
 ```
 
-Like `obsRecGrowth()` with the argument `rec_method = "extrap"`, `unobsRecGrowth()` uses the median growth rate of the smallest diameter size class to estimate the growth rate of the unseen recruits. The function assumes that these stems recruit in about 1/3 of the way through the census interval, and die about 2/3 of the way through.
+Like `obsRecGrowth()` with the argument `rec_method = "extrap"`,
+`unobsRecGrowth()` uses the median growth rate of the smallest diameter size
+class to estimate the growth rate of the unseen recruits. The function assumes
+that these stems recruit in about 1/3 of the way through the census interval,
+and die about 2/3 of the way through.
 
 # Plot-level rates of biomass change, productivity, loss
 
-The functions above present parts of a workflow that can be used to generate estimates of plot-level productivity, biomass turnover, and biomass change. There are two functions in `{ProdVital}` which provide these plot-level statistics. `prodKohyama()` uses methods from [@Kohyama2019], while `prodTalbot()` uses methods from [@Talbot2014]. 
+The functions above present parts of a workflow that can be used to generate
+estimates of plot-level productivity, biomass turnover, and biomass change.
+There are two functions in `{ProdVital}` which provide these plot-level
+statistics. `prodKohyama()` uses methods from [@Kohyama2019], while
+`prodTalbot()` uses methods from [@Talbot2014]. 
 
-`prodTalbot()` uses `unobsRecGrowth()` and `unobsMorGrowth()` to estimate the unseen productivity from stems which died, while `prodKohyama()` simply uses the observed initial and final biomass values of survivors and the population, and accounts for unseen productivity using estimates of population level processes.
+`prodTalbot()` uses `unobsRecGrowth()` and `unobsMorGrowth()` to estimate the
+unseen productivity from stems which died, while `prodKohyama()` simply uses
+the observed initial and final biomass values of survivors and the population,
+and accounts for unseen productivity using estimates of population level
+processes.
 
 ```{r}
 prodKohyama(bicuar_p1, "2019", "2021", w = "diam",
@@ -220,7 +276,10 @@ prodTalbot(bicuar_p1, "2019", "2021", w = "agb", diam = "diam",
 
 # Plot-level vital rates
 
-Estimates of population demographic processes are equally important to understanding ecosystem function as estimates of productivity. `{ProdVital}` provides `vitalKohyama()` to estimate rates of recruitment, mortality and other derived metrics, using methods from [@Kohyama2018]. 
+Estimates of population demographic processes are equally important to
+understanding ecosystem function as estimates of productivity. `{ProdVital}`
+provides `vitalKohyama()` to estimate rates of recruitment, mortality and other
+derived metrics, using methods from [@Kohyama2018]. 
 
 ```{r}
 vitalKohyama(bicuar_p1, "2019", "2021", group = "stem_id", 
@@ -229,7 +288,9 @@ vitalKohyama(bicuar_p1, "2019", "2021", group = "stem_id",
 
 # Scaling up to multiple plots and multiple census intervals
 
-All the functions in `{ProdVital}` act on a single plot across a single census interval, but it is trivial to run the functions across groups of plots and census intervals using `lapply()` or `for` loops.
+All the functions in `{ProdVital}` act on a single plot across a single census
+interval, but it is trivial to run the functions across groups of plots and
+census intervals using `lapply()` or `for` loops.
 
 First, split the dataset into plots:
 
@@ -237,7 +298,8 @@ First, split the dataset into plots:
 bicuar_split <- split(bicuar_clean, bicuar_clean$plot_id)
 ```
 
-Then, for each plot, identify all the possible pairwise combinations of censuses:
+Then, for each plot, identify all the possible pairwise combinations of
+censuses:
 
 ```{r}
 prod_all <- do.call(rbind, lapply(bicuar_split, function(x) { 
@@ -285,7 +347,9 @@ prod_all
 
 # Comparing Kohyama and Talbot
 
-Some of the metrics returned by `prodKohyama()` and `prodTalbot()` are analogous, though their values may differ due to the different methods used by each function.
+Some of the metrics returned by `prodKohyama()` and `prodTalbot()` are
+analogous, though their values may differ due to the different methods used by
+each function.
 
 For example, comparing annual rates of productivity `P_ann` and `AGWP_est_ann`:
 

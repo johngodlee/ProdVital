@@ -4,7 +4,7 @@
 \alias{obsSurGrowth}
 \title{Calculate growth from individuals which survived between two censuses}
 \usage{
-obsSurGrowth(x, t0, tT, w, group, census)
+obsSurGrowth(x, t0, tT, w, group, census, full = FALSE)
 }
 \arguments{
 \item{x}{dataframe of SEOSAW stem data}
@@ -18,12 +18,14 @@ obsSurGrowth(x, t0, tT, w, group, census)
 \item{group}{column name(s) defining individual IDs in \code{x}}
 
 \item{census}{column name of census dates in \code{x}}
+
+\item{full}{logical, if \code{TRUE} return a dataframe, otherwise a named vector}
 }
 \value{
-Named vector of individualobserved growth from individuals which survived.
+Named vector or dataframe (if \code{full = TRUE}) of individual observed growth from individuals which survived.
 }
 \description{
-This function acts on a datafame (\code{x}) of individuals (\code{group}) measured at two time points (\code{t0}, \code{tT}, \code{census}) to calculate the growth from individuals which survived, given a measure of individual size (\code{w})
+This function acts on a datafame (\code{x}) of individuals (\code{group}) measured at two time points (\code{t0}, \code{tT}, \code{census}) to calculate the growth from individuals which survived, given a measure of individual size (\code{w}).
 }
 \details{
 \code{group} can be a vector of multiple character strings which, when combined, uniquely define each individual.

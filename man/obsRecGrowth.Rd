@@ -16,7 +16,8 @@ obsRecGrowth(
   min_size_class = NULL,
   min_diam_thresh = NULL,
   growth_percentile = NULL,
-  w_min_diam = NULL
+  w_min_diam = NULL,
+  full = FALSE
 )
 }
 \arguments{
@@ -43,12 +44,14 @@ obsRecGrowth(
 \item{growth_percentile}{optional, percentile of growth rate used to estimate growth rate of recruits for backward extrapolation}
 
 \item{w_min_diam}{optional, column name or a vector of length 1 defining the estimated value of \code{w} in \code{x} at the minimum diameter threshold of the plot}
+
+\item{full}{logical, if \code{TRUE} return a dataframe, otherwise a named vector}
 }
 \value{
-Named vector of individualobserved growth from individuals which recruited.
+Named vector or dataframe (if \code{full = TRUE}) of individual observed growth from individuals which recruited.
 }
 \description{
-This function acts on a datafame (\code{x}) of individuals (\code{group}) measured at two time points (\code{t0}, \code{tT}, \code{census}) to calculate the growth from individuals which recruited, given a measure of individual size (\code{w})
+This function acts on a datafame (\code{x}) of individuals (\code{group}) measured at two time points (\code{t0}, \code{tT}, \code{census}) to calculate the growth from individuals which recruited, given a measure of individual size (\code{w}).
 }
 \details{
 \code{group} can be a vector of multiple character strings which, when combined, uniquely define each individual.

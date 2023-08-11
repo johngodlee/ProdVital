@@ -1,6 +1,6 @@
 #' Estimate growth of individuals which died between two censues
 #' 
-#' `r descrip_table()` `r descrip_gro("estimate", "growth", "died")`
+#' `r descrip_table()` `r descrip_gro("estimate", "growth", "died")`.
 #'
 #' @param x `r param_x()`
 #' @param t0 `r param_t0()`
@@ -10,6 +10,7 @@
 #' @param census `r param_census()`
 #' @param diam `r param_diam()`
 #' @param size_class `r param_size_class()`
+#' @param full `r param_full()`
 #'
 #' @return 
 #' `r details_obs_sum(un = TRUE)` growth from individuals which died.
@@ -28,7 +29,7 @@
 #' @export
 #' 
 unobsMorGrowth <- function(x, t0, tT, w, group, census,
-  diam, size_class = c(5,10,20,30,40,50)) { 
+  diam, size_class = c(5,10,20,30,40,50), full = FALSE) { 
 
   # Convert potential tibble to dataframe
   x <- as.data.frame(x)
@@ -131,10 +132,16 @@ unobsMorGrowth <- function(x, t0, tT, w, group, census,
   names(x_cen2) <- c(group, w)
 
   # Calculate woody productivity, 
-  out <- x_cen2[[w]] - x_cen1[[w]]
+  wdiff <- x_cen2[[w]] - x_cen1[[w]]
 
-  # Add names
-  names(out) <- interaction(x_cen1[,group])
+  # Add names or return dataframe
+  if (full) {
+    out <- x_cen1[, group, drop = FALSE]
+    out$unobs_mor_growth <- wdiff
+  } else {
+    out <- wdiff
+    names(out) <- interaction(x_cen1[,group])
+  }
 
   # Return
   return(out)

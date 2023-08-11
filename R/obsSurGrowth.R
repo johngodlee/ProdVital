@@ -1,6 +1,6 @@
 #' Calculate growth from individuals which survived between two censuses
 #'
-#' `r descrip_table()` `r descrip_gro("calculate", "growth", "survived")`
+#' `r descrip_table()` `r descrip_gro("calculate", "growth", "survived")`.
 #'
 #' @param x `r param_x()`
 #' @param t0 `r param_t0()`
@@ -8,6 +8,7 @@
 #' @param w `r param_w()`
 #' @param group `r param_group()`
 #' @param census `r param_census()`
+#' @param full `r param_full()`
 #'
 #' @return 
 #' `r details_obs_sum()` growth from individuals which survived.
@@ -23,7 +24,7 @@
 #' 
 #' @export
 #' 
-obsSurGrowth <- function(x, t0, tT, w, group, census) {
+obsSurGrowth <- function(x, t0, tT, w, group, census, full = FALSE) {
 
   # Convert potential tibble to dataframe
   x <- as.data.frame(x)
@@ -58,10 +59,16 @@ obsSurGrowth <- function(x, t0, tT, w, group, census) {
   x_sit_ord <- x_sit[order(interaction(x_sit[,group])),]
 
   # diff
-  out <- x_sit_ord[[w]] - x_si0_ord[[w]]
+  wdiff <- x_sit_ord[[w]] - x_si0_ord[[w]]
 
-  # Add names
-  names(out) <- interaction(x_si0_ord[,group])
+  # Add names or return dataframe
+  if (full) {
+    out <- x_si0_ord[, group, drop = FALSE]
+    out$obs_sur_growth <- wdiff
+  } else {
+    out <- wdiff
+    names(out) <- interaction(x_si0_ord[,group])
+  }
 
   # Return
   return(out)

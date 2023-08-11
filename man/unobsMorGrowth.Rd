@@ -12,7 +12,8 @@ unobsMorGrowth(
   group,
   census,
   diam,
-  size_class = c(5, 10, 20, 30, 40, 50)
+  size_class = c(5, 10, 20, 30, 40, 50),
+  full = FALSE
 )
 }
 \arguments{
@@ -31,12 +32,14 @@ unobsMorGrowth(
 \item{diam}{column name of stem diameters in \code{x}}
 
 \item{size_class}{numeric vector containing diameter size class cut points. The largest number will be open ended, e.g. 50+.}
+
+\item{full}{logical, if \code{TRUE} return a dataframe, otherwise a named vector}
 }
 \value{
-Named vector of individualunobserved growth from individuals which died.
+Named vector or dataframe (if \code{full = TRUE}) of individual unobserved growth from individuals which died.
 }
 \description{
-This function acts on a datafame (\code{x}) of individuals (\code{group}) measured at two time points (\code{t0}, \code{tT}, \code{census}) to estimate the growth from individuals which died, given a measure of individual size (\code{w})
+This function acts on a datafame (\code{x}) of individuals (\code{group}) measured at two time points (\code{t0}, \code{tT}, \code{census}) to estimate the growth from individuals which died, given a measure of individual size (\code{w}).
 }
 \details{
 \code{group} can be a vector of multiple character strings which, when combined, uniquely define each individual.

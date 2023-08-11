@@ -1,6 +1,6 @@
 #' Estimate growth of unobserved recruits between two censuses
 #'
-#' `r descrip_table()` `r descrip_gro("estimate", "growth", "recruited and died")`
+#' `r descrip_table()` `r descrip_gro("estimate", "growth", "recruited and died")`.
 #'
 #' @param x `r param_x()`
 #' @param t0 `r param_t0()`
@@ -13,7 +13,7 @@
 #' @param w_min_diam `r param_w_min_diam()`
 #'
 #' @return 
-#' `r details_obs_sum(un = TRUE)` growth from recruits which died.
+#' Numeric value with the estimated growth increment of all unobserved recruits.
 #' 
 #' @details 
 #' `r details_group()`

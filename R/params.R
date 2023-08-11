@@ -58,6 +58,10 @@ param_type <- function() {
   "vector defining which individuals to return, either: `rec` for recruits, `sur` for survivors, or `mor` for deaths"
 }
 
+param_full <- function() {
+  "logical, if `TRUE` return a dataframe, otherwise a named vector"
+}
+
 details_rec_method <- function() {
   "If `rec_method = 'thresh'`, `w_min_diam` must be defined. If `rec_method = 'extrap'`, `diam`, `min_size_class`, `min_diam_thresh` and `growth_percentile` must be defined."
 }
@@ -77,7 +81,8 @@ details_obs_sum <- function(un = FALSE) {
     un_string <- ""
   }
 
-  paste0("Named vector of individual", un_string, "observed")
+  paste0("Named vector or dataframe (if `full = TRUE`) of individual ", 
+    un_string, "observed")
 }
 
 descrip_table <- function() {

@@ -18,7 +18,7 @@ unobsRec(x, t0, tT, group, census)
 \item{census}{column name of census dates in \code{x}}
 }
 \value{
-\code{details_obs_sum(un = TRUE)} recruits.
+Numeric value with estimated number of unobserved recruits.
 }
 \description{
 This function acts on a datafame (\code{x}) of individuals (\code{group}) measured at two time points (\code{t0}, \code{tT}, \code{census}) to estimate the number of recruits which recruited and

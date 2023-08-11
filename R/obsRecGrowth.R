@@ -1,6 +1,6 @@
 #' Estimate growth of individuals which recruited between two censues
 #' 
-#' `r descrip_table()` `r descrip_gro("calculate", "growth", "recruited")`
+#' `r descrip_table()` `r descrip_gro("calculate", "growth", "recruited")`.
 #'
 #' @param x `r param_x()`
 #' @param t0 `r param_t0()`
@@ -14,6 +14,7 @@
 #' @param min_diam_thresh optional, `r param_min_diam_thresh()`
 #' @param growth_percentile optional, `r param_growth_percentile()`
 #' @param w_min_diam optional, `r param_w_min_diam()`
+#' @param full `r param_full()`
 #'
 #' @return 
 #' `r details_obs_sum()` growth from individuals which recruited.
@@ -54,7 +55,8 @@
 #' 
 obsRecGrowth <- function(x, t0, tT, w, group, census, 
   rec_method = "zero", diam = NULL, min_size_class = NULL, 
-  min_diam_thresh = NULL, growth_percentile = NULL, w_min_diam = NULL) { 
+  min_diam_thresh = NULL, growth_percentile = NULL, w_min_diam = NULL, 
+  full = FALSE) { 
 
   # Stop if methods not recognised
   if (any(!rec_method %in% c("zero", "thresh", "extrap"))) {
@@ -128,11 +130,17 @@ obsRecGrowth <- function(x, t0, tT, w, group, census,
     # Calculate sum of growth
     BD <- x_ri_fil[[w]]
 
-    # Add names
-    names(BD) <- interaction(x_ri_fil[,group])
+    # Add names or return dataframe
+    if (full) {
+      BD_out <- x_ri_fil[, group, drop = FALSE]
+      BD_out$obs_rec_growth <- BD
+    } else {
+      BD_out <- BD
+      names(BD_out) <- interaction(x_ri_fil[,group])
+    }
 
     # Create list
-    method_list[["zero"]] <- BD
+    method_list[["zero"]] <- BD_out
   }
 
   # Method: Assume grew from min. diam. thresh. 
@@ -140,11 +148,17 @@ obsRecGrowth <- function(x, t0, tT, w, group, census,
     # Find change
     BD <- x_ri_fil[[w]] - x_ri_fil[[w_min_diam]]
 
-    # Add names
-    names(BD) <- interaction(x_ri_fil[,group])
+    # Add names or return dataframe
+    if (full) {
+      BD_out <- x_ri_fil[, group, drop = FALSE]
+      BD_out$obs_rec_growth <- BD
+    } else {
+      BD_out <- BD
+      names(BD_out) <- interaction(x_ri_fil[,group])
+    }
 
     # Create list
-    method_list[["thresh"]] <- BD
+    method_list[["thresh"]] <- BD_out
   }
 
   # Extrap. diam. to first census using percentile of small stem growth rate (extrap)
@@ -176,11 +190,17 @@ obsRecGrowth <- function(x, t0, tT, w, group, census,
     # Find change
     BD <- x_ri_gemin[[w]]
 
-    # Add names
-    names(BD) <- interaction(x_ri_gemin[,group])
+    # Add names or return dataframe
+    if (full) {
+      BD_out <- x_ri_gemin[, group, drop = FALSE]
+      BD_out$obs_rec_growth <- BD
+    } else {
+      BD_out <- BD
+      names(BD_out) <- interaction(x_ri_gemin[,group])
+    }
 
     # Create list
-    method_list[["extrap"]] <- BD
+    method_list[["extrap"]] <- BD_out
   }
 
   # If only one method, don't return nested list

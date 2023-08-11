@@ -4,7 +4,7 @@
 \alias{obsMorLoss}
 \title{Calculate loss from individuals which died}
 \usage{
-obsMorLoss(x, t0, tT, w, group, census)
+obsMorLoss(x, t0, tT, w, group, census, full = FALSE)
 }
 \arguments{
 \item{x}{dataframe of SEOSAW stem data}
@@ -18,12 +18,14 @@ obsMorLoss(x, t0, tT, w, group, census)
 \item{group}{column name(s) defining individual IDs in \code{x}}
 
 \item{census}{column name of census dates in \code{x}}
+
+\item{full}{logical, if \code{TRUE} return a dataframe, otherwise a named vector}
 }
 \value{
-Named vector of individualobserved loss from individuals which died.
+Named vector or dataframe (if \code{full = TRUE}) of individual observed loss from individuals which died.
 }
 \description{
-This function acts on a datafame (\code{x}) of individuals (\code{group}) measured at two time points (\code{t0}, \code{tT}, \code{census}) `r descrip_gro("calculate", "loss", "died")
+This function acts on a datafame (\code{x}) of individuals (\code{group}) measured at two time points (\code{t0}, \code{tT}, \code{census}) to calculate the loss from individuals which died, given a measure of individual size (\code{w}).
 }
 \details{
 \code{group} can be a vector of multiple character strings which, when combined, uniquely define each individual.

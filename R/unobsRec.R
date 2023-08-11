@@ -10,7 +10,7 @@
 #' @param census `r param_census()`
 #'
 #' @return 
-#' `details_obs_sum(un = TRUE)` recruits.
+#' Numeric value with estimated number of unobserved recruits.
 #' 
 #' @details
 #' `r details_group()`

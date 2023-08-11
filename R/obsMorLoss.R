@@ -1,6 +1,6 @@
 #' Calculate loss from individuals which died 
 #' 
-#' `r descrip_table()` `r descrip_gro("calculate", "loss", "died")
+#' `r descrip_table()` `r descrip_gro("calculate", "loss", "died")`.
 #'
 #' @param x `r param_x()`
 #' @param t0 `r param_t0()`
@@ -8,6 +8,7 @@
 #' @param w `r param_w()`
 #' @param group `r param_group()`
 #' @param census `r param_census()`
+#' @param full `r param_full()`
 #' 
 #' @return 
 #' `r details_obs_sum()` loss from individuals which died.
@@ -23,7 +24,7 @@
 #'  
 #' @export
 #' 
-obsMorLoss <- function(x, t0, tT, w, group, census) {
+obsMorLoss <- function(x, t0, tT, w, group, census, full = FALSE) {
 
   # Convert potential tibble to dataframe
   x <- as.data.frame(x)
@@ -50,13 +51,19 @@ obsMorLoss <- function(x, t0, tT, w, group, census) {
   stopifnot(all(table(as.character(interaction(x_di[,group, drop = FALSE]))) == 1))
 
   # Get loss
-  out <- x_di[x_di[[census]] == t0, w]
+  wdiff <- x_di[x_di[[census]] == t0, w]
 
   # Should never be negative
-  if (any(out < 0)) { stop("No observed mortality should be <0") }
+  if (any(wdiff < 0)) { stop("No observed mortality should be <0") }
 
-  # Add names
-  names(out) <- interaction(x_di[,group])
+  # Add names or return dataframe
+  if (full) {
+    out <- x_di[, group, drop = FALSE]
+    out$unobs_mor_growth <- wdiff
+  } else {
+    out <- wdiff
+    names(out) <- interaction(x_di[,group])
+  }
 
   # Return
   return(out)
