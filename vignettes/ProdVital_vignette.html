@@ -379,6 +379,26 @@ and vital rates with ProdVital</h1>
 
 </div>
 
+<div id="TOC">
+<ul>
+<li><a href="#setup" id="toc-setup">Setup</a></li>
+<li><a href="#prepare-the-stem-data" id="toc-prepare-the-stem-data">Prepare the stem data</a></li>
+<li><a href="#identify-stem-fate" id="toc-identify-stem-fate">Identify
+stem fate</a></li>
+<li><a href="#observed-stem-growth-recruitment-growth-and-mortality-loss" id="toc-observed-stem-growth-recruitment-growth-and-mortality-loss">Observed
+stem growth, recruitment growth, and mortality loss</a></li>
+<li><a href="#average-growth-rates" id="toc-average-growth-rates">Average growth rates</a></li>
+<li><a href="#estimating-unseen-growth" id="toc-estimating-unseen-growth">Estimating unseen growth</a></li>
+<li><a href="#plot-level-rates-of-biomass-change-productivity-loss" id="toc-plot-level-rates-of-biomass-change-productivity-loss">Plot-level
+rates of biomass change, productivity, loss</a></li>
+<li><a href="#plot-level-vital-rates" id="toc-plot-level-vital-rates">Plot-level vital rates</a></li>
+<li><a href="#scaling-up-to-multiple-plots-and-multiple-census-intervals" id="toc-scaling-up-to-multiple-plots-and-multiple-census-intervals">Scaling
+up to multiple plots and multiple census intervals</a></li>
+<li><a href="#comparing-kohyama-and-talbot" id="toc-comparing-kohyama-and-talbot">Comparing Kohyama and
+Talbot</a></li>
+<li><a href="#references" id="toc-references">References</a></li>
+</ul>
+</div>
 
 <div id="setup" class="section level1">
 <h1>Setup</h1>
@@ -556,7 +576,7 @@ increment of all stems which survived between two censuses. The argument
 <code>w</code> gives the column used to calculate growth. The function
 returns a named vector of stem growth increments between the two census
 dates. The names refer to the <code>group</code> ID column(s) used to
-define individual stems.</p>
+define individuals.</p>
 <pre class="r"><code>obsSurGrowth(bicuar_clean, t0 = &quot;2019&quot;, tT = &quot;2021&quot;, w = &quot;diam&quot;,
     group = c(&quot;plot_id&quot;, &quot;stem_id&quot;), census = &quot;census_date&quot;)</code></pre>
 <pre><code>##    ABG_5.1   ABG_5.10  ABG_5.100 ABG_15.101  ABG_5.101  ABG_5.102 ABG_15.103 
@@ -651,8 +671,8 @@ function are identical to <code>obsSurGrowth()</code>:</p>
 ##       14.4        5.2        5.7       10.0       10.4        6.7        8.5 
 ##  ABG_5.882  ABG_5.883  ABG_5.884  ABG_5.887  ABG_5.888  ABG_5.899  ABG_5.900 
 ##        7.9       11.5        9.0       11.0       10.0       10.3        5.1</code></pre>
-<p><code>obsRecGrowth()</code> calculates the growth from individuals
-which recruited within a census interval.</p>
+<p><code>obsRecGrowth()</code> calculates the growth from stems which
+recruited within a census interval.</p>
 <p>There are multiple methods for estimating the growth of recruits. The
 default <code>rec_method = &quot;zero&quot;</code>, assumes that the stem grew
 from a size of zero in the initial census. While this method is very
@@ -705,6 +725,51 @@ used to calculate the average growth rate of small stems. The default of
     growth_percentile = 0.86)</code></pre>
 <pre><code>## ABG_15.929 ABG_15.930  ABG_5.684  ABG_5.685  ABG_5.688 
 ##        9.2        8.4        6.2        6.3        6.2</code></pre>
+</div>
+<div id="average-growth-rates" class="section level1">
+<h1>Average growth rates</h1>
+<p>Rather than estimating individual stem growth rates separately for
+each census interval, as in <code>obsSurGrowth()</code>, you may want to
+calculate an average growth rate for an individual across all available
+census intervals. <code>growthMod()</code> fits a linear model to each
+stem measurement timeline and extracts the model slope coefficient,
+which is the average stem growth rate, in units of <code>w</code> per
+<code>census</code>. Like <code>obsSurGrowth()</code>, with option
+<code>full = TRUE</code>, <code>growthMod()</code> returns a dataframe
+with the columns in <code>group</code>, rather than a named vector.</p>
+<pre class="r"><code>growthMod(bicuar_clean, w = &quot;diam&quot;, group = c(&quot;plot_id&quot;, &quot;stem_id&quot;),
+    census = &quot;census_date&quot;)</code></pre>
+<pre><code>##    ABG_5.1   ABG_5.10  ABG_5.100 ABG_15.101  ABG_5.101  ABG_5.102 ABG_15.103 
+##  3.336e-01  8.878e-01  2.147e-01  2.753e-01  1.008e+00  5.544e-01 -1.000e-01 
+##  ABG_5.103 ABG_15.104  ABG_5.104 ABG_15.105  ABG_5.105 ABG_15.106  ABG_5.106 
+## -4.000e-01 -3.500e-01  1.720e-01  6.213e-01  5.787e-01  1.000e-01  6.458e-01 
+## ABG_15.107  ABG_5.107 ABG_15.108  ABG_5.108 ABG_15.109  ABG_5.109   ABG_5.11 
+##  8.742e-01  9.363e-01  9.426e-01  1.091e+00  5.350e+00 -1.450e+00  4.844e-01 
+## ABG_15.110  ABG_5.110 ABG_15.111  ABG_5.111 ABG_15.112  ABG_5.112 ABG_15.113 
+##  1.049e-01  2.341e-01  2.000e-01  3.866e-01  1.090e+00  1.087e+00  1.045e+00 
+##  ABG_5.113 ABG_15.114 ABG_15.115  ABG_5.115 ABG_15.116  ABG_5.116 ABG_15.117 
+##  2.075e-01  8.594e-01 -5.000e-02  2.517e-01  5.024e-15  6.169e-01  2.512e-15 
+##  ABG_5.117 ABG_15.118  ABG_5.118 ABG_15.119  ABG_5.119   ABG_5.12 ABG_15.120 
+##  2.996e-01 -1.000e-01  6.373e-01  2.655e-01  1.498e+00  1.596e-01  2.100e+00 
+##  ABG_5.120  ABG_5.121 ABG_15.122  ABG_5.122 ABG_15.123  ABG_5.123 ABG_15.124 
+## -1.000e-01  2.075e-01  4.000e-01  7.342e-01  1.008e+00  6.245e-01  1.534e-01 
+##  ABG_5.124 ABG_15.125  ABG_5.125  ABG_5.126 ABG_15.127  ABG_5.127 ABG_15.128 
+##  1.677e-01  7.113e-01  2.482e-01  3.191e-01  8.981e-01  6.500e-01  0.000e+00 
+##  ABG_5.128 ABG_15.129  ABG_5.129 ABG_15.130  ABG_5.130 ABG_15.131  ABG_5.131 
+##  1.670e-01  1.021e+00  7.016e-01  2.500e-01  1.272e+00  7.763e-01  3.040e-01 
+## ABG_15.132  ABG_5.132  ABG_5.133 ABG_15.134  ABG_5.134 ABG_15.135  ABG_5.135 
+##  5.000e-02  9.552e-01  6.277e-01  7.402e-01  4.770e-01 -1.000e-01  8.543e-01 
+## ABG_15.136  ABG_5.136  ABG_5.137 ABG_15.138  ABG_5.138 ABG_15.139  ABG_5.139 
+##  9.637e-01  1.111e+00  9.087e-01  7.544e-01  1.200e+00  2.500e-01  1.180e+00 
+##   ABG_5.14 ABG_15.140  ABG_5.140 ABG_15.141  ABG_5.141 ABG_15.142  ABG_5.142 
+##  3.536e-01 -5.000e-02  1.314e+00  2.512e-15  1.114e+00  3.994e-01  1.338e+00 
+## ABG_15.143  ABG_5.143 ABG_15.144  ABG_5.144 ABG_15.145  ABG_5.145 ABG_15.146 
+##  8.913e-01  3.155e-01  0.000e+00  7.086e-01 -1.000e-01  1.005e+00  2.000e-01 
+##  ABG_5.146 ABG_15.147  ABG_5.147 ABG_15.148  ABG_5.148 ABG_15.149  ABG_5.149 
+##  1.004e+00  5.024e-15  5.000e-01  2.981e-01  1.130e+00  5.000e-02  1.736e+00 
+##   ABG_5.15 ABG_15.150 
+##  4.625e-01  1.500e-01 
+##  [ reached getOption(&quot;max.print&quot;) -- omitted 703 entries ]</code></pre>
 </div>
 <div id="estimating-unseen-growth" class="section level1">
 <h1>Estimating unseen growth</h1>

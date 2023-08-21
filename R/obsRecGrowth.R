@@ -37,6 +37,10 @@
 #' 
 #' obsRecGrowth(bicuar_clean, "2019", "2021", w = "diam",
 #'   group = c("plot_id", "stem_id"), census = "census_date",
+#'   rec_method = "zero", full = TRUE)
+#' 
+#' obsRecGrowth(bicuar_clean, "2019", "2021", w = "diam",
+#'   group = c("plot_id", "stem_id"), census = "census_date",
 #'   rec_method = "thresh", w_min_diam = 5)
 #' 
 #' bicuar_clean$agb_min <- runif(nrow(bicuar_clean))

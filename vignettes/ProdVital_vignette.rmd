@@ -1,6 +1,8 @@
 ---
 title: "Estimating growth increment, productivity, and vital rates with ProdVital"
-output: html_document
+output: 
+  html_document:
+    toc: true
 author: "John L. Godlee"
 date: 2023-08-10
 bibliography: ProdVital_vignette.bib
@@ -129,7 +131,7 @@ The `obsSurGrowth()` function can calculate the growth increment of all stems
 which survived between two censuses. The argument `w` gives the column used to
 calculate growth. The function returns a named vector of stem growth increments
 between the two census dates. The names refer to the `group` ID column(s) used
-to define individual stems.
+to define individuals. 
 
 ```{r}
 obsSurGrowth(bicuar_clean, t0 = "2019", tT = "2021", w = "diam", 
@@ -154,7 +156,7 @@ obsMorLoss(bicuar_clean, t0 = "2019", tT = "2021", w = "diam",
   group = c("plot_id", "stem_id"), census = "census_date")
 ```
 
-`obsRecGrowth()` calculates the growth from individuals which recruited within
+`obsRecGrowth()` calculates the growth from stems which recruited within
 a census interval. 
 
 There are multiple methods for estimating the growth of recruits. The default
@@ -206,6 +208,15 @@ obsRecGrowth(bicuar_clean, "2019", "2021", w = "diam",
   group = c("plot_id", "stem_id"), census = "census_date",
   rec_method = "extrap", diam = "diam", min_size_class = c(5, 10),
   min_diam_thresh = 5, growth_percentile = 0.86)
+```
+
+# Average growth rates
+
+Rather than estimating individual stem growth rates separately for each census interval, as in `obsSurGrowth()`, you may want to calculate an average growth rate for an individual across all available census intervals. `growthMod()` fits a linear model to each stem measurement timeline and extracts the model slope coefficient, which is the average stem growth rate, in units of `w` per `census`. Like `obsSurGrowth()`, with option `full = TRUE`, `growthMod()` returns a dataframe with the columns in `group`, rather than a named vector.
+
+```{r}
+growthMod(bicuar_clean, w = "diam",
+  group = c("plot_id", "stem_id"), census = "census_date")
 ```
 
 # Estimating unseen growth 
