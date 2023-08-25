@@ -53,7 +53,12 @@ Each row is a stem measurement in a given census.
 
 # Prepare the stem data
 
-Stems may be missing from a particular census, despite being measured in censuses before and after. Stem timelines should not have gaps, otherwise you will get unrealistic estimates of recruitment, mortality, and biomass turnover using the functions in `{ProdVital}`. We need to create these rows so we can fill them with estimated values. We can do this using the `seosawr::stemFillGen()` function:
+Stems may be missing from a particular census, despite being measured in
+censuses before and after. Stem timelines should not have gaps, otherwise you
+will get unrealistic estimates of recruitment, mortality, and biomass turnover
+using the functions in `{ProdVital}`. We need to create these rows so we can
+fill them with estimated values. We can do this using the
+`seosawr::stemFillGen()` function:
 
 ```{r}
 # Generate missing rows
@@ -67,7 +72,9 @@ stopifnot(all(missing_records$census_date == 2021))
 bicuar_pad <- bind_rows(bicuar, missing_records)
 ```
 
-Sometimes, a stem will appear to have died only to resurrect at a later date. Stems might also be missing stem status values. We can try to fix these issues using the `seosawr::statusImputGen()` function. 
+Sometimes, a stem will appear to have died only to resurrect at a later date.
+Stems might also be missing stem status values. We can try to fix these issues
+using the `seosawr::statusImputGen()` function. 
 
 ```{r}
 # Impute mortality status
@@ -77,14 +84,26 @@ status_est <- statusImputGen(bicuar_pad)
 bicuar_sfix <- bind_cols(bicuar_pad, status_est)
 ```
 
-Now that the stem status values have been fixed, we should remove measurements of dead stems. The functions in `{ProdVital}` assume that the stem data only contain measurements from living stems. Measurements from dead stems should be excluded from the stem data. The absence of a stem from a particular census after it was initially measured implies that the stem was dead during that census. Similarly the absence of a stem from a particular census before it was initially measured implies that the stem had not yet recruited. It's up to you whether you count resprouting stems (`stem_status` "r", stem dead above point of measurement but with living material elsewhere on the tree) as alive or dead:
+Now that the stem status values have been fixed, we should remove measurements
+of dead stems. The functions in `{ProdVital}` assume that the stem data only
+contain measurements from living stems. Measurements from dead stems should be
+excluded from the stem data. The absence of a stem from a particular census
+after it was initially measured implies that the stem was dead during that
+census. Similarly the absence of a stem from a particular census before it was
+initially measured implies that the stem had not yet recruited. It's up to you
+whether you count resprouting stems (`stem_status` "r", stem dead above point
+of measurement but with living material elsewhere on the tree) as alive or
+dead:
 
 ```{r}
 bicuar_alive <- bicuar_sfix %>%
   filter(stem_status_est == "a")
 ```
 
-Stem diameter measurements might be missing. These values should be filled, otherwise you will get unrealistic estimates of stem growth. A simple way to fill gaps is to take the mean of measured diameters before and after the missing diameter:
+Stem diameter measurements might be missing. These values should be imputed if
+you are calculating plot-level productivity, otherwise you will get unrealistic
+estimates of growth and loss. A simple way to impute missing diameter values is
+to take the mean of measured diameters before and after the missing diameter:
 
 ```{r}
 bicuar_clean <- bicuar_alive %>% 
@@ -96,11 +115,28 @@ bicuar_clean <- bicuar_alive %>%
 stopifnot(all(!is.na(bicuar_clean$diam)))
 ```
 
-It is important to understand that this naive approach doesn't consider that some diameter measurements may contain errors, what should happen if the missing value is at the start or end of the stem timeline, or what should happen if there are multiple consecutive missing values. In these cases, more complex approaches will be required to fix missing diameter values.
+It is important to understand that this naive approach doesn't consider that
+some diameter measurements may contain errors, what should happen if the
+missing value is at the start or end of the stem timeline, or what should
+happen if there are multiple consecutive missing values. In these cases, more
+complex approaches will be required to impute missing diameter values.
+
+If you only want to calculate stem growth increment, these missing values can
+simply be removed:
+
+```{r}
+bicuar_excl <- bicuar_clean %>% 
+  filter(!is.na(diam))
+```
 
 # Identify stem fate
 
-Using the `obsID()` function, it is possible to identify the fate of individual stems within a given census interval. __Recruits__ are stems which were not present in the initial census, but are present in the final census. __Survivors__ are stems which are present in both the initial and final census. __Deaths__ are stems which are present in the initial census but not in the final census:
+Using the `obsID()` function, it is possible to identify the fate of individual
+stems within a given census interval. __Recruits__ are stems which were not
+present in the initial census, but are present in the final census.
+__Survivors__ are stems which are present in both the initial and final census.
+__Deaths__ are stems which are present in the initial census but not in the
+final census:
 
 ```{r}
 bicuar_clean$plot_stem <- paste(bicuar_clean$plot_id, 
@@ -113,7 +149,8 @@ obs1 <- obsID(bicuar_clean, t0 = "2019", tT = "2021",
 lapply(obs1, head)
 ```
 
-Note that `plot_stem` was created to provide single ID column, but this is also valid:
+Note that `plot_stem` was created to provide single ID column, but this is also
+valid:
 
 ```{r}
 obs2 <- obsID(bicuar_clean, t0 = "2019", tT = "2021",
@@ -123,7 +160,8 @@ obs2 <- obsID(bicuar_clean, t0 = "2019", tT = "2021",
 lapply(obs2, head)
 ```
 
-`obsID()` serves as a building block in many other functions in `{ProdVital}`, like `prodKohyama()`, `vitalKohyama()` and `obsSurGrowth()`.
+`obsID()` serves as a building block in many other functions in `{ProdVital}`,
+like `prodKohyama()`, `vitalKohyama()` and `obsSurGrowth()`.
 
 # Observed stem growth, recruitment growth, and mortality loss
 
@@ -212,11 +250,32 @@ obsRecGrowth(bicuar_clean, "2019", "2021", w = "diam",
 
 # Average growth rates
 
-Rather than estimating individual stem growth rates separately for each census interval, as in `obsSurGrowth()`, you may want to calculate an average growth rate for an individual across all available census intervals. `growthMod()` fits a linear model to each stem measurement timeline and extracts the model slope coefficient, which is the average stem growth rate, in units of `w` per `census`. Like `obsSurGrowth()`, with option `full = TRUE`, `growthMod()` returns a dataframe with the columns in `group`, rather than a named vector.
+Rather than estimating individual stem growth rates separately for each census
+interval, as in `obsSurGrowth()`, you may want to calculate the average growth
+rate for each individual across all available census intervals. `growthMod()`
+fits a linear model to each stem measurement timeline and extracts the model
+slope coefficient, which is the average stem growth rate, in units of `w` per
+`census`. Like `obsSurGrowth()`, with option `full = TRUE`, `growthMod()`
+returns a dataframe with the columns in `group`, rather than a named vector.
 
 ```{r}
-growthMod(bicuar_clean, w = "diam",
-  group = c("plot_id", "stem_id"), census = "census_date")
+growthMod(bicuar_clean, w = "diam", group = c("plot_id", "stem_id"), 
+  census = "census_date")
+```
+
+With the `growthAll()` function, you can also calculate growth increment for
+every available consecutive or pairwise census interval for each stem. Where a
+stem measurement in a particular census is missing, the function simply
+calculates the growth rate using the next non-missing value:
+
+```{r}
+growthAll(bicuar_clean, w = "diam", group = c("plot_id", "stem_id"), 
+  census = "census_date", type = "pairwise")
+```
+
+```{r}
+growthAll(bicuar_clean, w = "diam", group = c("plot_id", "stem_id"), 
+  census = "census_date", type = "consecutive")
 ```
 
 # Estimating unseen growth 

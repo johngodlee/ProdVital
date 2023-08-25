@@ -122,8 +122,8 @@ prodKohyama <- function(x, t0, tT, w, group, census) {
   # n0 == N0
   nT <- Ns0 + Nr0  # Final N equals survivors plus recruits
   # nT == NT  # NT is sometimes larger than nT, 
-    # implying some stems appear as alive in final census, 
-    # but not found or are dead/resprouting in initial census.
+  # implying some stems appear as alive in final census, 
+  # but not found or are dead/resprouting in initial census.
 
   # Find initial biomass for survivors
   x_si <- merge(x_fil, si)

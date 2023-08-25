@@ -25,10 +25,11 @@ intervals.
 Estimate average growth rate of individuals
 }
 \details{
-This function fits a linear model to estimate average growth rate, and
-returns the slope of that model, which is identical to the average rate
-of growth, in units of \code{w} per \code{census}. Only individuals with >1 census
-are returned.
+This function fits a linear model and returns the slope of that
+model, which is identical to the average rate of growth, in units
+of \code{w} per \code{census}.
+
+Only individuals with >1 census are returned.
 }
 \examples{
 data(bicuar_clean)

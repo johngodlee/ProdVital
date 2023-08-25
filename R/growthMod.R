@@ -11,10 +11,11 @@
 #' intervals.
 #'
 #' @details
-#' This function fits a linear model to estimate average growth rate, and
-#' returns the slope of that model, which is identical to the average rate
-#' of growth, in units of `w` per `census`. Only individuals with >1 census
-#' are returned.
+#' This function fits a linear model and returns the slope of that
+#' model, which is identical to the average rate of growth, in units
+#' of `w` per `census`. 
+#' 
+#' `r details_ncensus()`
 #' 
 #' @examples
 #' data(bicuar_clean)
@@ -32,12 +33,15 @@ growthMod <- function(x, w, group, census, full = FALSE) {
 
   # Convert potential tibble to dataframe
   x <- as.data.frame(x)
+
+  # Exclude non-finite values of w
+  x_nona <- x[!is.na(x[[w]]),]
  
   # Find individuals with more than one census
-  ind_id <- apply(x[,group], 1, paste, collapse = ":")
+  ind_id <- apply(x_nona[,group], 1, paste, collapse = ":")
   ind_count <- table(ind_id)
   ind_multi <- names(ind_count)[ind_count > 1]
-  x_fil <- x[which(ind_id %in% ind_multi),]
+  x_fil <- x_nona[which(ind_id %in% ind_multi),]
 
   # Split dataframe by indvidual
   x_split <- split(x_fil, x_fil[,group], drop = TRUE)

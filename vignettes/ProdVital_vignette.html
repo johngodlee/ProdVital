@@ -474,9 +474,10 @@ the tree) as alive or dead:</p>
 <pre class="r"><code>bicuar_alive &lt;- bicuar_sfix %&gt;%
     filter(stem_status_est == &quot;a&quot;)</code></pre>
 <p>Stem diameter measurements might be missing. These values should be
-filled, otherwise you will get unrealistic estimates of stem growth. A
-simple way to fill gaps is to take the mean of measured diameters before
-and after the missing diameter:</p>
+imputed if you are calculating plot-level productivity, otherwise you
+will get unrealistic estimates of growth and loss. A simple way to
+impute missing diameter values is to take the mean of measured diameters
+before and after the missing diameter:</p>
 <pre class="r"><code>bicuar_clean &lt;- bicuar_alive %&gt;%
     group_by(plot_id, stem_id) %&gt;%
     mutate(diam = ifelse(is.na(diam), mean(diam, na.rm = TRUE),
@@ -488,8 +489,12 @@ stopifnot(all(!is.na(bicuar_clean$diam)))</code></pre>
 consider that some diameter measurements may contain errors, what should
 happen if the missing value is at the start or end of the stem timeline,
 or what should happen if there are multiple consecutive missing values.
-In these cases, more complex approaches will be required to fix missing
-diameter values.</p>
+In these cases, more complex approaches will be required to impute
+missing diameter values.</p>
+<p>If you only want to calculate stem growth increment, these missing
+values can simply be removed:</p>
+<pre class="r"><code>bicuar_excl &lt;- bicuar_clean %&gt;%
+    filter(!is.na(diam))</code></pre>
 </div>
 <div id="identify-stem-fate" class="section level1">
 <h1>Identify stem fate</h1>
@@ -730,13 +735,14 @@ used to calculate the average growth rate of small stems. The default of
 <h1>Average growth rates</h1>
 <p>Rather than estimating individual stem growth rates separately for
 each census interval, as in <code>obsSurGrowth()</code>, you may want to
-calculate an average growth rate for an individual across all available
-census intervals. <code>growthMod()</code> fits a linear model to each
-stem measurement timeline and extracts the model slope coefficient,
-which is the average stem growth rate, in units of <code>w</code> per
-<code>census</code>. Like <code>obsSurGrowth()</code>, with option
-<code>full = TRUE</code>, <code>growthMod()</code> returns a dataframe
-with the columns in <code>group</code>, rather than a named vector.</p>
+calculate the average growth rate for each individual across all
+available census intervals. <code>growthMod()</code> fits a linear model
+to each stem measurement timeline and extracts the model slope
+coefficient, which is the average stem growth rate, in units of
+<code>w</code> per <code>census</code>. Like
+<code>obsSurGrowth()</code>, with option <code>full = TRUE</code>,
+<code>growthMod()</code> returns a dataframe with the columns in
+<code>group</code>, rather than a named vector.</p>
 <pre class="r"><code>growthMod(bicuar_clean, w = &quot;diam&quot;, group = c(&quot;plot_id&quot;, &quot;stem_id&quot;),
     census = &quot;census_date&quot;)</code></pre>
 <pre><code>##    ABG_5.1   ABG_5.10  ABG_5.100 ABG_15.101  ABG_5.101  ABG_5.102 ABG_15.103 
@@ -770,6 +776,43 @@ with the columns in <code>group</code>, rather than a named vector.</p>
 ##   ABG_5.15 ABG_15.150 
 ##  4.625e-01  1.500e-01 
 ##  [ reached getOption(&quot;max.print&quot;) -- omitted 703 entries ]</code></pre>
+<p>With the <code>growthAll()</code> function, you can also calculate
+growth increment for every available consecutive or pairwise census
+interval for each stem. Where a stem measurement in a particular census
+is missing, the function simply calculates the growth rate using the
+next non-missing value:</p>
+<pre class="r"><code>growthAll(bicuar_clean, w = &quot;diam&quot;, group = c(&quot;plot_id&quot;, &quot;stem_id&quot;),
+    census = &quot;census_date&quot;, type = &quot;pairwise&quot;)</code></pre>
+<pre><code>##                plot_id stem_id   t0   tT int   w0     wT      g
+## ABG_5.1.1        ABG_5       1 2019 2021   2 14.6 15.000 0.4000
+## ABG_5.1.2        ABG_5       1 2019 2023   4 14.6 15.934 1.3345
+## ABG_5.1.3        ABG_5       1 2021 2023   2 15.0 15.934 0.9345
+## ABG_5.10.4       ABG_5      10 2019 2021   2 22.2 23.200 1.0000
+## ABG_5.10.41      ABG_5      10 2019 2023   4 22.2 25.751 3.5510
+## ABG_5.10.42      ABG_5      10 2021 2023   2 23.2 25.751 2.5510
+## ABG_5.100.7      ABG_5     100 2019 2021   2  7.0  7.000 0.0000
+## ABG_5.100.71     ABG_5     100 2019 2023   4  7.0  7.859 0.8587
+## ABG_5.100.72     ABG_5     100 2021 2023   2  7.0  7.859 0.8587
+## ABG_15.101.10   ABG_15     101 2019 2021   2 28.9 29.100 0.2000
+## ABG_15.101.101  ABG_15     101 2019 2023   4 28.9 30.001 1.1011
+## ABG_15.101.102  ABG_15     101 2021 2023   2 29.1 30.001 0.9011
+##  [ reached &#39;max&#39; / getOption(&quot;max.print&quot;) -- omitted 2051 rows ]</code></pre>
+<pre class="r"><code>growthAll(bicuar_clean, w = &quot;diam&quot;, group = c(&quot;plot_id&quot;, &quot;stem_id&quot;),
+    census = &quot;census_date&quot;, type = &quot;consecutive&quot;)</code></pre>
+<pre><code>##                plot_id stem_id   t0   tT int   w0     wT       g
+## ABG_5.1.1        ABG_5       1 2019 2021   2 14.6 15.000  0.4000
+## ABG_5.1.2        ABG_5       1 2021 2023   2 15.0 15.934  0.9345
+## ABG_5.10.4       ABG_5      10 2019 2021   2 22.2 23.200  1.0000
+## ABG_5.10.41      ABG_5      10 2021 2023   2 23.2 25.751  2.5510
+## ABG_5.100.7      ABG_5     100 2019 2021   2  7.0  7.000  0.0000
+## ABG_5.100.71     ABG_5     100 2021 2023   2  7.0  7.859  0.8587
+## ABG_15.101.10   ABG_15     101 2019 2021   2 28.9 29.100  0.2000
+## ABG_15.101.101  ABG_15     101 2021 2023   2 29.1 30.001  0.9011
+## ABG_5.101.12     ABG_5     101 2019 2021   2  5.2  5.100 -0.1000
+## ABG_5.101.121    ABG_5     101 2021 2023   2  5.1  9.230  4.1304
+## ABG_5.102.16     ABG_5     102 2019 2021   2 57.3 57.200 -0.1000
+## ABG_5.102.161    ABG_5     102 2021 2023   2 57.2 59.518  2.3176
+##  [ reached &#39;max&#39; / getOption(&quot;max.print&quot;) -- omitted 1421 rows ]</code></pre>
 </div>
 <div id="estimating-unseen-growth" class="section level1">
 <h1>Estimating unseen growth</h1>

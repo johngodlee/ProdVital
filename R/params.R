@@ -58,6 +58,10 @@ param_type <- function() {
   "vector defining which individuals to return, either: `rec` for recruits, `sur` for survivors, or `mor` for deaths"
 }
 
+param_type2 <- function() {
+  "string defining whether to return only consecutive or all pairwise census intervals."
+}
+
 param_full <- function() {
   "logical, if `TRUE` return a dataframe, otherwise a named vector"
 }
@@ -91,5 +95,9 @@ descrip_table <- function() {
 
 descrip_gro <- function(x = "calculate", y = "growth", z = "survived") {
   paste0("to ", x, " the ", y, " from individuals which ", z, ", given a measure of individual size (`w`)")
+}
+
+details_ncensus <- function() {
+  "Only individuals with >1 census are returned."
 }
 
