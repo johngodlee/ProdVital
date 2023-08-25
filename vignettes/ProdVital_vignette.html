@@ -707,7 +707,13 @@ to estimate what the biomass of each stem would be if it shrunk down to
 the diameter of the minimum diameter threshold of the plot. In the
 example below, biomass is estimated using a simplistic allometric
 equation.</p>
-<pre class="r"><code>bicuar_clean$agb_min &lt;- (0.0644 * (pi * (5/2)^2)^1.3341)/1000
+<pre class="r"><code># Define minimum diameter
+mdt &lt;- 5
+
+# Estimate AGB at minimum diameter
+bicuar_clean$agb_min &lt;- (0.0644 * (pi * (mdt/2)^2)^1.3341)/1000
+
+# Estimate growth from recruits
 obsRecGrowth(bicuar_clean, &quot;2019&quot;, &quot;2021&quot;, w = &quot;diam&quot;, group = c(&quot;plot_id&quot;,
     &quot;stem_id&quot;), census = &quot;census_date&quot;, rec_method = &quot;thresh&quot;,
     w_min_diam = &quot;agb_min&quot;)</code></pre>

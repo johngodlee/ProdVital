@@ -227,7 +227,13 @@ threshold of the plot. In the example below, biomass is estimated using a
 simplistic allometric equation.
 
 ```{r}
-bicuar_clean$agb_min <- (0.0644 * (pi * (5 / 2) ^ 2) ^ 1.3341) / 1000
+# Define minimum diameter 
+mdt <- 5
+
+# Estimate AGB at minimum diameter 
+bicuar_clean$agb_min <- (0.0644 * (pi * (mdt / 2) ^ 2) ^ 1.3341) / 1000
+
+# Estimate growth from recruits
 obsRecGrowth(bicuar_clean, "2019", "2021", w = "diam",
   group = c("plot_id", "stem_id"), census = "census_date",
   rec_method = "thresh", w_min_diam = "agb_min")
