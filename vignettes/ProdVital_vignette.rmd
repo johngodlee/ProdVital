@@ -280,9 +280,16 @@ growthAll(bicuar_clean, w = "diam", group = c("plot_id", "stem_id"),
 ```
 
 ```{r}
-growthAll(bicuar_clean, w = "diam", group = c("plot_id", "stem_id"), 
-  census = "census_date", type = "consecutive")
+(g_all <- growthAll(bicuar_clean, w = "diam", group = c("plot_id", "stem_id"), 
+  census = "census_date", type = "consecutive"))
 ```
+
+To convert these growth increments to a rate just divide by the census interval (`int`):
+
+```{r}
+g_all$g / g_all$int
+```
+
 
 # Areal growth rates
 

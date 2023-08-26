@@ -517,8 +517,8 @@ growthAll(bicuar_clean, w = "diam", group = c("plot_id", "stem_id"),
 
 
 ```r
-growthAll(bicuar_clean, w = "diam", group = c("plot_id", "stem_id"),
-    census = "census_date", type = "consecutive")
+(g_all <- growthAll(bicuar_clean, w = "diam", group = c("plot_id",
+    "stem_id"), census = "census_date", type = "consecutive"))
 ```
 
 ```
@@ -537,6 +537,30 @@ growthAll(bicuar_clean, w = "diam", group = c("plot_id", "stem_id"),
 ## ABG_5.102.161    ABG_5     102 2021 2023   2 57.2 59.518  2.3176
 ##  [ reached 'max' / getOption("max.print") -- omitted 1421 rows ]
 ```
+
+To convert these growth increments to a rate just divide by the census interval (`int`)
+
+
+```r
+g_all$g/g_all$int
+```
+
+```
+##   [1]  0.2000  0.4672  0.5000  1.2755  0.0000  0.4293  0.1000  0.4505 -0.0500
+##  [10]  2.0652 -0.0500  1.1588 -0.1000 -0.4000 -0.3500 -0.2000  0.5439  0.0000
+##  [19]  1.2426 -0.4000  1.5574  0.1000 -0.2500  1.5415  0.2500  1.4983 -0.2500
+##  [28]  2.1227  0.0000  1.8852 -0.0500  2.2321  5.3500 -1.4500  0.1000  0.8688
+##  [37] -0.2500  0.4599 -0.2500  0.7181  0.2000  0.3000  0.4731  0.2000  1.9807
+##  [46]  0.6500  1.5234  0.2500  1.8391  0.0000  0.4149  0.0000  1.7187 -0.0500
+##  [55] -0.1500  0.6534  0.0000 -0.0500  1.2838  0.0000  0.1000  0.4992 -0.1000
+##  [64] -0.2000  1.4746  0.1000  0.4310  1.4500  1.5459 -0.1000  0.4191  2.1000
+##  [73] -0.1000  0.0000  0.4149  0.4000  0.3500  1.1184 -0.0500  2.0667 -0.6500
+##  [82]  1.8991 -0.4000  0.7067 -0.4500  0.7853  0.0000  1.4226 -0.1000  0.5963
+##  [91] -0.3000  0.9382 -0.3000  2.0962  0.6500  0.0000 -0.1500  0.4840  1.0214
+## [100]  1.0214
+##  [ reached getOption("max.print") -- omitted 1333 entries ]
+```
+
 
 # Areal growth rates
 
@@ -983,8 +1007,8 @@ ggplot(prod_all, aes(x = P_ann, y = AGWP_obs_ann)) + geom_abline(linetype = 2,
 ```
 
 <div class="figure" style="text-align: center">
-<img src="figure/unnamed-chunk-30-1.png" alt="plot of chunk unnamed-chunk-30"  />
-<p class="caption">plot of chunk unnamed-chunk-30</p>
+<img src="figure/unnamed-chunk-31-1.png" alt="plot of chunk unnamed-chunk-31"  />
+<p class="caption">plot of chunk unnamed-chunk-31</p>
 </div>
 
 # References
