@@ -38,7 +38,7 @@ growthMod <- function(x, w, group, census, full = FALSE) {
   x_nona <- x[!is.na(x[[w]]),]
  
   # Find individuals with more than one census
-  ind_id <- apply(x_nona[,group], 1, paste, collapse = ":")
+  ind_id <- apply(x_nona[,group, drop = FALSE], 1, paste, collapse = ":")
   ind_count <- table(ind_id)
   ind_multi <- names(ind_count)[ind_count > 1]
   x_fil <- x_nona[which(ind_id %in% ind_multi),]
@@ -53,11 +53,11 @@ growthMod <- function(x, w, group, census, full = FALSE) {
 
   # Add names or return dataframe
   if (full) {
-    out <- unique(x_fil[,group])
+    out <- unique(x_fil[,group, drop = FALSE])
     out$growth_rate <- coefs
   } else {
     out <- coefs
-    names(out) <- unique(interaction(x_fil[,group]))
+    names(out) <- unique(interaction(x_fil[,group, drop = FALSE]))
   }
 
   # Return

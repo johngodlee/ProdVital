@@ -52,7 +52,7 @@ growthAll <- function(x, w, group, census, type = "consecutive") {
   }
  
   # Find individuals with more than one census
-  ind_id <- apply(x[,group], 1, paste, collapse = ":")
+  ind_id <- apply(x[,group, drop = FALSE], 1, paste, collapse = ":")
   ind_count <- table(ind_id)
   ind_multi <- names(ind_count)[ind_count > 1]
   x_fil <- x[which(ind_id %in% ind_multi),]
