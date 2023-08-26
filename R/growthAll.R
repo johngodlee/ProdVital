@@ -87,7 +87,7 @@ growthAll <- function(x, w, group, census, type = "consecutive") {
     # For each in comb_list
     do.call(rbind, lapply(comb_list, function(i) { 
       # Find growth increment
-      gi <- y[1,group]
+      gi <- y[1, group, drop = FALSE]
       gi$t0 <- y[y[[census]] == i[1], census]
       gi$tT <- y[y[[census]] == i[2], census]
       gi$int <- gi$tT - gi$t0

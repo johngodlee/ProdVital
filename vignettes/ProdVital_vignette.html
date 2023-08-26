@@ -388,6 +388,8 @@ stem fate</a></li>
 <li><a href="#observed-stem-growth-recruitment-growth-and-mortality-loss" id="toc-observed-stem-growth-recruitment-growth-and-mortality-loss">Observed
 stem growth, recruitment growth, and mortality loss</a></li>
 <li><a href="#average-growth-rates" id="toc-average-growth-rates">Average growth rates</a></li>
+<li><a href="#areal-growth-rates" id="toc-areal-growth-rates">Areal
+growth rates</a></li>
 <li><a href="#estimating-unseen-growth" id="toc-estimating-unseen-growth">Estimating unseen growth</a></li>
 <li><a href="#plot-level-rates-of-biomass-change-productivity-loss" id="toc-plot-level-rates-of-biomass-change-productivity-loss">Plot-level
 rates of biomass change, productivity, loss</a></li>
@@ -819,6 +821,28 @@ next non-missing value:</p>
 ## ABG_5.102.16     ABG_5     102 2019 2021   2 57.3 57.200 -0.1000
 ## ABG_5.102.161    ABG_5     102 2021 2023   2 57.2 59.518  2.3176
 ##  [ reached &#39;max&#39; / getOption(&quot;max.print&quot;) -- omitted 1421 rows ]</code></pre>
+</div>
+<div id="areal-growth-rates" class="section level1">
+<h1>Areal growth rates</h1>
+<p>Measuring stem growth per unit area is best accomplished using the
+basal area of all stems within the plot. First, calculate the basal area
+of each stem measurement in units of m<sup>2</sup>, then aggregate to
+the total basal area within each plot, and finally use the
+<code>growthAll()</code> function to calculate the basal area growth for
+each census interval.</p>
+<pre class="r"><code>bicuar_plot_ba &lt;- bicuar_clean %&gt;%
+    mutate(ba = (pi * (diam/2)^2)/10000) %&gt;%
+    group_by(plot_id, census_date) %&gt;%
+    summarise(ba_sum = sum(ba, na.rm = TRUE))</code></pre>
+<pre><code>## `summarise()` has grouped output by &#39;plot_id&#39;. You can override using the
+## `.groups` argument.</code></pre>
+<pre class="r"><code>growthAll(bicuar_plot_ba, w = &quot;ba_sum&quot;, group = &quot;plot_id&quot;, census = &quot;census_date&quot;,
+    type = &quot;consecutive&quot;)</code></pre>
+<pre><code>##          plot_id   t0   tT int     w0     wT        g
+## ABG_15.1  ABG_15 2019 2021   2 10.637 10.702  0.06507
+## ABG_15.2  ABG_15 2021 2023   2 10.702  6.152 -4.54948
+## ABG_5.4    ABG_5 2019 2021   2  7.897  7.125 -0.77190
+## ABG_5.41   ABG_5 2021 2023   2  7.125  8.676  1.55031</code></pre>
 </div>
 <div id="estimating-unseen-growth" class="section level1">
 <h1>Estimating unseen growth</h1>

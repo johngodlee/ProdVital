@@ -284,6 +284,24 @@ growthAll(bicuar_clean, w = "diam", group = c("plot_id", "stem_id"),
   census = "census_date", type = "consecutive")
 ```
 
+# Areal growth rates
+
+Measuring stem growth per unit area is best accomplished using the basal area
+of all stems within the plot. First, calculate the basal area of each stem
+measurement in units of m^2^, then aggregate to the total basal area within
+each plot, and finally use the `growthAll()` function to calculate the basal
+area growth for each census interval.
+
+```{r}
+bicuar_plot_ba <- bicuar_clean %>%
+  mutate(ba = (pi * (diam/2)^2) / 10000) %>% 
+  group_by(plot_id, census_date) %>% 
+  summarise(ba_sum = sum(ba, na.rm = TRUE))
+
+growthAll(bicuar_plot_ba, w = "ba_sum", group = "plot_id", 
+  census = "census_date", type = "consecutive")
+```
+
 # Estimating unseen growth 
 
 To accurately estimate productivity within a given census interval, i.e. the
