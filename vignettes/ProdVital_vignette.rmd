@@ -290,7 +290,6 @@ To convert these growth increments to a rate just divide by the census interval 
 g_all$g / g_all$int
 ```
 
-
 # Areal growth rates
 
 Measuring stem growth per unit area is best accomplished using the basal area

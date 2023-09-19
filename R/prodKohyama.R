@@ -20,30 +20,34 @@
 #'   * `Nd0` - number of stems which died
 #'   * `B0` - initial biomass
 #'   * `BT` - final biomass
-#'   * `dB` - biomass change
-#'   * `dB_ann` - annual biomass change
 #'   * `Bs0` - biomass of survivors in initial census
 #'   * `Br0` - biomass of recruits in final census
-#'   * `Bd0` - biomass lost to deaths
+#'   * `Bd0` - biomass lost to deaths 
+#'   * `dB` - observed net biomass change `BT - B0`
+#'   * `dB_ann` - observed net annual biomass change `dB / int`
 #'   * `W_max` - standardised maximum stem biomass for initial census (99th percentile of biomass)
-#'   * `r_turn` - instantaneous recruitment rate
-#'   * `m_turn` - instantaneous mortality rate
-#'   * `p_turn` - instantaneous production rate
+#'   * `r_turn` - instantaneous recruitment rate (uses `turnoverEst()`)
+#'   * `m_turn` - instantaneous mortality rate (uses `turnoverEst()`)
+#'   * `p_turn` - instantaneous production rate (uses `turnoverEst()`)
 #'   * `l_turn` - instantaneous loss rate 
-#'   * `Nw` - period mean abundance (Kohyama et al. 2019 - Eq10)
-#'   * `Nw_ann` - annual mean abundance (Kohyama et al. 2019 - Eq14) 
-#'   * `Bw` - period mean biomass (Kohyama et al. 2019 - Eq10)
-#'   * `Bw_ann` - annual mean biomass (Kohyama et al. 2019 - Eq14)
+#'   * `Bw` - period mean biomass `(BT-B0)/log(BT/B0)`
+#'   * `Nw` - period mean abundance `(NT-N0)/log(NT/N0)`
+#'   * `Bw_ann` - annual mean biomass `(BT-B0)/((BT/B0)^(1/int) - 1)/int`
+#'   * `Nw_ann` - annual mean abundance `(NT-N0)/((NT/N0)^(1/int) - 1)/int`
+#'   * `P` - instantaneous rate of production `(Bw * log(BT/Bs0))/int`
+#'   * `L` - instantaneous rate of loss `(Bw * log(B0/Bs0))/int`
 #'   * `P_simple` - simple rate of production `(B0-Bs0)/int`
 #'   * `L_simple` - simple rate of loss `(BT-Bs0)/int`
-#'   * `Bw_simple` - simple mean biomass `(B0+BT)/2`
-#'   * `P_ann` - annual rate of production (Kohyama et al. 2019 Eq12)
-#'   * `L_ann` - annual rate of loss (Kohyama et al. 2019 Eq13)
-#'   * `P` - instantaneous rate of production
-#'   * `L` - instantaneous rate of loss
-#'   * `Bwk` - alternative measure of period mean biomass, to check consistency in calculation with `Bw`
-#'   * `Psimp` - simple rate of production, alternative method
-#'   * `Psimp_clark` - simple rate of production (Clark et al. 2001)
+#'   * `p` - intrinsic rate of production `(log(BT/Bs0)/int`
+#'   * `l` - intrinsic rate of loss `(log(B0/Bs0)/int`
+#'   * `r` - intrinsic rate of biomass change `(log(BT/B0)/int`
+#'   * `p_ann` - specific rate of production `(BT/B0)^(1/int) * (1 - (Bs0/BT)^(1/int))`
+#'   * `l_ann` - specific rate of loss `1-(Bs0/B0)^(1/int)`
+#'   * `lambda` - specific rate of biomass change `(BT/B0)^(1/int)`
+#'   * `P_ann` - annual rate of production `Bw_ann * p_ann`
+#'   * `L_ann` - annual rate of loss `Bw_ann * l_ann`
+#'   * `Psimp` - simple rate of production, alternative method `(NT*BT - Ns0*B0) / int`
+#'   * `Psimp_clark` - simple rate of production (Clark et al. 2001) `Ns0*(BT-B0) / int + Nr0*(BT-Bmin) / int`
 #' 
 #' @details
 #' `r details_group()`
@@ -83,6 +87,9 @@ prodKohyama <- function(x, t0, tT, w, group, census) {
     no2 <- TRUE
     warning("Census 2 contains no stems")
   }
+
+  # Define minimum biomass possible on plot
+  Bmin <- 0
 
   # Find initial number of stems for plot
   N0 <- nrow(x0)
@@ -143,27 +150,39 @@ prodKohyama <- function(x, t0, tT, w, group, census) {
       x_fil[[census]] == t0, 
     w], probs = 0.99, na.rm = TRUE))
 
-  # Period mean abundance - Kohyama et al. (2018) Eq10
+  # Eq10
+  # Period mean biomass 
+  Bw <- ifelse(BT != B0, (BT-B0)/log(BT/B0), B0)
+  # Period mean abundance 
   Nw <- ifelse(NT != N0, (NT-N0)/log(NT/N0), N0)
 
-  # Period mean biomass - Kohyama et al. (2018) Eq10
-  Bwk <- ifelse(BT != B0, (BT-B0)/log(BT/B0), B0)
-  
-  # Kohyama et al. (2018) Eq14
-  Nw_ann <- ifelse(NT != N0, (NT-N0)/((NT/N0)^(1/int) - 1)/int, N0)
+  # Eq14
+  # Annual mean biomass of census period
   Bw_ann <- ifelse(BT != B0, (BT-B0)/((BT/B0)^(1/int) - 1)/int, B0)
+  # Annual mean abundance of census period
+  Nw_ann <- ifelse(NT != N0, (NT-N0)/((NT/N0)^(1/int) - 1)/int, N0)
 
-  # Calculate production, loss, and mean biomass 
-  L_simple  = sum(B0 - Bs0)/int  # Simple loss
-  P_simple  = sum(BT - Bs0)/int  # Simple production
-  Bw_simple = sum(B0 + BT)/2  # Simple mean biomass
+  # Instantaneous rates
+  P = (Bw * log(BT/Bs0))/int  # Production Eq1
+  L = (Bw * log(B0/Bs0))/int  # Loss Eq2
 
-  L_ann  = sum(Bw_ann * (1 - (Bs0/B0)^(1/int)))  # Annual loss
-  P_ann  = sum(Bw_ann * (BT/B0)^(1/int) * (1 - (Bs0/BT)^(1/int)))  # Annual production
+  # Simple rates 
+  P_simple  = (BT - Bs0)/int  # Production Eq5
+  L_simple  = (B0 - Bs0)/int  # Loss Eq6
 
-  L = sum(Bwk * log(B0/Bs0))/int  # Instantaneous loss
-  P = sum(Bwk * log(BT/Bs0))/int  # Instantaneous production
-  Bw = sum(Bwk)  # Period mean biomass
+  # Intrinsic rates of biomass change
+  p <- log(BT / Bs0) / int  # Production Eq8
+  l <- log(B0 / Bs0) / int  # Loss Eq9
+  r <- log(BT / B0) / int  # Net change Eq7-ish
+
+  # Specific rates
+  p_ann <- (BT/B0)^(1/int) * (1 - (Bs0/BT)^(1/int))  # Production Eq12
+  l_ann <- 1 - (Bs0/B0)^(1/int)  # Loss Eq13
+  lambda <- (BT/B0)^(1/int)  # Net change (Lambda)
+
+  # Annual rates
+  P_ann = Bw_ann * p_ann  # Production Eq3
+  L_ann = Bw_ann * l_ann  # Loss Eq4
 
   # Calculate turnover rates
   r_turn <- try(turnoverEst(NT, Ns0, int), silent = TRUE)
@@ -183,8 +202,10 @@ prodKohyama <- function(x, t0, tT, w, group, census) {
     l_turn <- NA_real_
   }
 
-  Psimp <- (sum((NT * BT - Ns0 * B0) / int)) 
-  Psimp_clark  <- (sum(Ns0 * (BT - B0) / int + Nr0 * (BT) / int))
+  Psimp <- (NT * BT - Ns0 * B0) / int
+  Psimp_clark  <- Ns0 * (BT - B0) / int + Nr0 * (BT - Bmin) / int
+
+  Tw <- B0 / P_ann
 
   # Create output list
   out <- list(
@@ -196,12 +217,16 @@ prodKohyama <- function(x, t0, tT, w, group, census) {
     dB = dB, dB_ann = dB_ann,
     W_max = W_max,
     r_turn = r_turn, m_turn = m_turn, p_turn = p_turn, l_turn = l_turn,
-    Nw = Nw, Nw_ann = Nw_ann,
-    Bwk = Bwk, Bw_ann = Bw_ann,
-    P_simple = P_simple, L_simple = L_simple, Bw_simple = Bw_simple,
-    P_ann = P_ann, L_ann = L_ann,
-    P = P, L = L, Bw = Bw,
-    Psimp = Psimp, Psimp_clark = Psimp_clark)
+    Bw = Bw, Nw = Nw, 
+    Bw_ann = Bw_ann, Nw_ann = Nw_ann,
+    P = P, L = L,
+    P_ann = P_ann, L_ann = L_ann, 
+    P_simple = P_simple, L_simple = L_simple, 
+    p = p, l = l, r = r,
+    p_ann = p_ann, l_ann = l_ann, lambda = lambda,
+    Psimp = Psimp, Psimp_clark = Psimp_clark,
+    Tw = Tw
+)
 
   # Return
   return(out)

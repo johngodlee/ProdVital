@@ -32,30 +32,34 @@ named list containing measures of productivity for the census interval:
 \item \code{Nd0} - number of stems which died
 \item \code{B0} - initial biomass
 \item \code{BT} - final biomass
-\item \code{dB} - biomass change
-\item \code{dB_ann} - annual biomass change
 \item \code{Bs0} - biomass of survivors in initial census
 \item \code{Br0} - biomass of recruits in final census
 \item \code{Bd0} - biomass lost to deaths
+\item \code{dB} - observed net biomass change \code{BT - B0}
+\item \code{dB_ann} - observed net annual biomass change \code{dB / int}
 \item \code{W_max} - standardised maximum stem biomass for initial census (99th percentile of biomass)
-\item \code{r_turn} - instantaneous recruitment rate
-\item \code{m_turn} - instantaneous mortality rate
-\item \code{p_turn} - instantaneous production rate
+\item \code{r_turn} - instantaneous recruitment rate (uses \code{turnoverEst()})
+\item \code{m_turn} - instantaneous mortality rate (uses \code{turnoverEst()})
+\item \code{p_turn} - instantaneous production rate (uses \code{turnoverEst()})
 \item \code{l_turn} - instantaneous loss rate
-\item \code{Nw} - period mean abundance (Kohyama et al. 2019 - Eq10)
-\item \code{Nw_ann} - annual mean abundance (Kohyama et al. 2019 - Eq14)
-\item \code{Bw} - period mean biomass (Kohyama et al. 2019 - Eq10)
-\item \code{Bw_ann} - annual mean biomass (Kohyama et al. 2019 - Eq14)
+\item \code{Bw} - period mean biomass \code{(BT-B0)/log(BT/B0)}
+\item \code{Nw} - period mean abundance \code{(NT-N0)/log(NT/N0)}
+\item \code{Bw_ann} - annual mean biomass \code{(BT-B0)/((BT/B0)^(1/int) - 1)/int}
+\item \code{Nw_ann} - annual mean abundance \code{(NT-N0)/((NT/N0)^(1/int) - 1)/int}
+\item \code{P} - instantaneous rate of production \code{(Bw * log(BT/Bs0))/int}
+\item \code{L} - instantaneous rate of loss \code{(Bw * log(B0/Bs0))/int}
 \item \code{P_simple} - simple rate of production \code{(B0-Bs0)/int}
 \item \code{L_simple} - simple rate of loss \code{(BT-Bs0)/int}
-\item \code{Bw_simple} - simple mean biomass \code{(B0+BT)/2}
-\item \code{P_ann} - annual rate of production (Kohyama et al. 2019 Eq12)
-\item \code{L_ann} - annual rate of loss (Kohyama et al. 2019 Eq13)
-\item \code{P} - instantaneous rate of production
-\item \code{L} - instantaneous rate of loss
-\item \code{Bwk} - alternative measure of period mean biomass, to check consistency in calculation with \code{Bw}
-\item \code{Psimp} - simple rate of production, alternative method
-\item \code{Psimp_clark} - simple rate of production (Clark et al. 2001)
+\item \code{p} - intrinsic rate of production \verb{(log(BT/Bs0)/int}
+\item \code{l} - intrinsic rate of loss \verb{(log(B0/Bs0)/int}
+\item \code{r} - intrinsic rate of biomass change \verb{(log(BT/B0)/int}
+\item \code{p_ann} - specific rate of production \code{(BT/B0)^(1/int) * (1 - (Bs0/BT)^(1/int))}
+\item \code{l_ann} - specific rate of loss \code{1-(Bs0/B0)^(1/int)}
+\item \code{lambda} - specific rate of biomass change \code{(BT/B0)^(1/int)}
+\item \code{P_ann} - annual rate of production \code{Bw_ann * p_ann}
+\item \code{L_ann} - annual rate of loss \code{Bw_ann * l_ann}
+\item \code{Psimp} - simple rate of production, alternative method \code{(NT*BT - Ns0*B0) / int}
+\item \code{Psimp_clark} - simple rate of production (Clark et al. 2001) \code{Ns0*(BT-B0) / int + Nr0*(BT-Bmin) / int}
 }
 }
 \description{

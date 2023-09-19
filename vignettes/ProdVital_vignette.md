@@ -538,7 +538,7 @@ growthAll(bicuar_clean, w = "diam", group = c("plot_id", "stem_id"),
 ##  [ reached 'max' / getOption("max.print") -- omitted 1421 rows ]
 ```
 
-To convert these growth increments to a rate just divide by the census interval (`int`)
+To convert these growth increments to a rate just divide by the census interval (`int`):
 
 
 ```r
@@ -560,7 +560,6 @@ g_all$g/g_all$int
 ## [100]  1.0214
 ##  [ reached getOption("max.print") -- omitted 1333 entries ]
 ```
-
 
 # Areal growth rates
 
@@ -746,32 +745,17 @@ prodKohyama(bicuar_p1, "2019", "2021", w = "diam", group = "stem_id",
 ## $l_turn
 ## [1] 0.03704
 ## 
+## $Bw
+## [1] 6392
+## 
 ## $Nw
 ## [1] 672.3
-## 
-## $Nw_ann
-## [1] 681.6
-## 
-## $Bwk
-## [1] 6392
 ## 
 ## $Bw_ann
 ## [1] 6501
 ## 
-## $P_simple
-## [1] 20.11
-## 
-## $L_simple
-## [1] 236
-## 
-## $Bw_simple
-## [1] 6394
-## 
-## $P_ann
-## [1] 20.49
-## 
-## $L_ann
-## [1] 236.4
+## $Nw_ann
+## [1] 681.6
 ## 
 ## $P
 ## [1] 20.87
@@ -779,14 +763,44 @@ prodKohyama(bicuar_p1, "2019", "2021", w = "diam", group = "stem_id",
 ## $L
 ## [1] 236.8
 ## 
-## $Bw
-## [1] 6392
+## $P_ann
+## [1] 20.49
+## 
+## $L_ann
+## [1] 236.4
+## 
+## $P_simple
+## [1] 20.11
+## 
+## $L_simple
+## [1] 236
+## 
+## $p
+## [1] 0.003265
+## 
+## $l
+## [1] 0.03704
+## 
+## $r
+## [1] -0.03378
+## 
+## $p_ann
+## [1] 0.003151
+## 
+## $l_ann
+## [1] 0.03636
+## 
+## $lambda
+## [1] 0.9668
 ## 
 ## $Psimp
 ## [1] -108143
 ## 
 ## $Psimp_clark
 ## [1] -108143
+## 
+## $Tw
+## [1] 322.7
 ```
 
 
@@ -977,18 +991,21 @@ prod_all
 ##          int   t0   tT  N0  NT Ns0 Nr0 Nd0    B0    BT   Bs0 Br0     Bd0
 ## ABG_15.1   2 2019 2021 151 151 149   2   2 69.42 71.10 69.10   0  0.3198
 ## ABG_15.2   4 2019 2023 151  71  69   2  82 69.42 42.41 33.97   0 35.4530
-##               dB  dB_ann W_max   r_turn   m_turn  p_turn   l_turn  Nw Nw_ann
-## ABG_15.1   1.672  0.8361 2.966 0.006667 0.006667 0.01421 0.002308 151  151.0
-## ABG_15.2 -27.016 -6.7540 2.966 0.007143 0.195793 0.05546 0.178680 106  116.3
-##            Bwk Bw_ann P_simple L_simple Bw_simple  P_ann L_ann      P      L
-## ABG_15.1 70.26  69.84    0.996   0.1599     70.26 0.9972 0.161 0.9983 0.1622
-## ABG_15.2 54.81  58.26    2.109   8.8633     55.92 2.7785 9.532 3.0397 9.7937
-##             Bw  Psimp Psimp_clark sur_obs rec_obs mor_obs mor_unobs rec_unobs
-## ABG_15.1 70.26  195.7       195.7   1.803 0.18891  0.3198   0.01429         0
-## ABG_15.2 54.81 -444.8      -444.8   8.339 0.09849 35.4530   4.05122         0
-##          AGWP_obs AGWP_est AGWP_obs_ann AGWP_est_ann plot_id
-## ABG_15.1    1.992    2.006        0.996        1.003  ABG_15
-## ABG_15.2    8.437   12.488        2.109        3.122  ABG_15
+##               dB  dB_ann W_max   r_turn   m_turn  p_turn   l_turn    Bw  Nw
+## ABG_15.1   1.672  0.8361 2.966 0.006667 0.006667 0.01421 0.002308 70.26 151
+## ABG_15.2 -27.016 -6.7540 2.966 0.007143 0.195793 0.05546 0.178680 54.81 106
+##          Bw_ann Nw_ann      P      L  P_ann L_ann P_simple L_simple       p
+## ABG_15.1  69.84  151.0 0.9983 0.1622 0.9972 0.161    0.996   0.1599 0.01421
+## ABG_15.2  58.26  116.3 3.0397 9.7937 2.7785 9.532    2.109   8.8633 0.05546
+##                 l       r   p_ann    l_ann lambda  Psimp Psimp_clark    Tw
+## ABG_15.1 0.002308  0.0119 0.01428 0.002306 1.0120  195.7       195.7 69.62
+## ABG_15.2 0.178680 -0.1232 0.04769 0.163627 0.8841 -444.8      -444.8 24.99
+##          sur_obs rec_obs mor_obs mor_unobs rec_unobs AGWP_obs AGWP_est
+## ABG_15.1   1.803 0.18891  0.3198   0.01429         0    1.992    2.006
+## ABG_15.2   8.339 0.09849 35.4530   4.05122         0    8.437   12.488
+##          AGWP_obs_ann AGWP_est_ann plot_id
+## ABG_15.1        0.996        1.003  ABG_15
+## ABG_15.2        2.109        3.122  ABG_15
 ##  [ reached 'max' / getOption("max.print") -- omitted 4 rows ]
 ```
 
