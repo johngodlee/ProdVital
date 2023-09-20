@@ -18,6 +18,10 @@
 #'   * `Ns0` - number of surviving stems in initial census
 #'   * `Nr0` - number of recruiting stems 
 #'   * `Nd0` - number of stems which died
+#'   * `n0` - alternative method for number of stems in initial census, `Ns0 + Nd0`
+#'   * `nT` - alternative method for number of stems in final census, `Ns0 + Nr0`
+#'   * `dN` - observed net change in number of living stems `NT - N0`
+#'   * `dN_ann` - observed net annual change in number of living stems `dN / int`
 #'   * `B0` - initial biomass
 #'   * `BT` - final biomass
 #'   * `Bs0` - biomass of survivors in initial census
@@ -97,6 +101,12 @@ prodKohyama <- function(x, t0, tT, w, group, census) {
   # Find final number of stems for plot
   NT <- nrow(xT)
 
+  # Find change in number of stems for plot
+  dN <- NT - N0
+
+  # Find annual change in number of stems for plot
+  dN_ann <- dN / int
+
   # Find initial biomass for plot
   B0 <- sum(x0[[w]], na.rm = TRUE)
 
@@ -163,12 +173,12 @@ prodKohyama <- function(x, t0, tT, w, group, census) {
   Nw_ann <- ifelse(NT != N0, (NT-N0)/((NT/N0)^(1/int) - 1)/int, N0)
 
   # Instantaneous rates
-  P = (Bw * log(BT/Bs0))/int  # Production Eq1
-  L = (Bw * log(B0/Bs0))/int  # Loss Eq2
+  P <- (Bw * log(BT/Bs0))/int  # Production Eq1
+  L <- (Bw * log(B0/Bs0))/int  # Loss Eq2
 
   # Simple rates 
-  P_simple  = (BT - Bs0)/int  # Production Eq5
-  L_simple  = (B0 - Bs0)/int  # Loss Eq6
+  P_simple <- (BT - Bs0)/int  # Production Eq5
+  L_simple <- (B0 - Bs0)/int  # Loss Eq6
 
   # Intrinsic rates of biomass change
   p <- log(BT / Bs0) / int  # Production Eq8
@@ -181,8 +191,8 @@ prodKohyama <- function(x, t0, tT, w, group, census) {
   lambda <- (BT/B0)^(1/int)  # Net change (Lambda)
 
   # Annual rates
-  P_ann = Bw_ann * p_ann  # Production Eq3
-  L_ann = Bw_ann * l_ann  # Loss Eq4
+  P_ann <- Bw_ann * p_ann  # Production Eq3
+  L_ann <- Bw_ann * l_ann  # Loss Eq4
 
   # Calculate turnover rates
   r_turn <- try(turnoverEst(NT, Ns0, int), silent = TRUE)
@@ -213,7 +223,9 @@ prodKohyama <- function(x, t0, tT, w, group, census) {
     t0 = t0,
     tT = tT,
     N0 = N0, NT = NT, Ns0 = Ns0, Nr0 = Nr0, Nd0 = Nd0,
+    n0 = n0, nT = nT,
     B0 = B0, BT = BT, Bs0 = Bs0, Br0 = Br0, Bd0 = Bd0,
+    dN = dN, dN_ann = dN_ann,
     dB = dB, dB_ann = dB_ann,
     W_max = W_max,
     r_turn = r_turn, m_turn = m_turn, p_turn = p_turn, l_turn = l_turn,
