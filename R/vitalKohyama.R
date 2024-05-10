@@ -28,6 +28,8 @@
 #'   * `raf` - Final-density-based per capita annual recruitment rate
 #'   * `ras` - Survivor-density-based per capita annual recruitment rate
 #'   * `raz` - Zero-mortality per capita annual recruitment rate
+#'   * `r_turn` - instantaneous recruitment rate (uses `turnoverEst()`)
+#'   * `m_turn` - instantaneous mortality rate (uses `turnoverEst()`)
 #'   * `M` - Instantaneous per area mortality rate
 #'   * `R` - Instantaneous per area recruitment rate
 #'   * `Ma` - Per area annual mortality rate
@@ -168,6 +170,16 @@ vitalKohyama <- function(x, t0, tT, w = NULL, group, census, plot_area) {
   # Calculate per area annual recruitment rate with "Gf-estimate"
   #RGf <- G * (min_diam_thresh) * N * (min_diam_thresh) / A
 
+  # Calculate turnover rates
+  r_turn <- try(turnoverEst(NT, Ns0, int), silent = TRUE)
+  if (inherits(r_turn,"try-error")) {
+    r_turn <- NA_real_
+  }
+  m_turn <- try(turnoverEst(N0, Ns0, int), silent = TRUE)
+  if (inherits(m_turn,"try-error")) {
+    m_turn <- NA_real_
+  }
+
   # Create output list
   out <- list(
     int = int,
@@ -190,7 +202,9 @@ vitalKohyama <- function(x, t0, tT, w = NULL, group, census, plot_area) {
 		R = R,
 		Ma = Ma,
 		Ra = Ra,
-		Ras = Ras)
+		Ras = Ras,
+    m_turn = m_turn,
+    r_turn = r_turn)
 
   # Return
   return(out)

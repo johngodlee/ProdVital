@@ -30,8 +30,6 @@
 #'   * `dB` - observed net biomass change `BT - B0`
 #'   * `dB_ann` - observed net annual biomass change `dB / int`
 #'   * `W_max` - standardised maximum stem biomass for initial census (99th percentile of biomass)
-#'   * `r_turn` - instantaneous recruitment rate (uses `turnoverEst()`)
-#'   * `m_turn` - instantaneous mortality rate (uses `turnoverEst()`)
 #'   * `p_turn` - instantaneous production rate (uses `turnoverEst()`)
 #'   * `l_turn` - instantaneous loss rate 
 #'   * `Bw` - period mean biomass `(BT-B0)/log(BT/B0)`
@@ -195,14 +193,6 @@ prodKohyama <- function(x, t0, tT, w, group, census) {
   L_ann <- Bw_ann * l_ann  # Loss Eq4
 
   # Calculate turnover rates
-  r_turn <- try(turnoverEst(NT, Ns0, int), silent = TRUE)
-  if (inherits(r_turn,"try-error")) {
-    r_turn <- NA_real_
-  }
-  m_turn <- try(turnoverEst(N0, Ns0, int), silent = TRUE)
-  if (inherits(m_turn,"try-error")) {
-    m_turn <- NA_real_
-  }
   p_turn <- try(turnoverEst(BT, Bs0, int), silent = TRUE)
   if (inherits(p_turn,"try-error")) {
     p_turn <- NA_real_
@@ -228,7 +218,7 @@ prodKohyama <- function(x, t0, tT, w, group, census) {
     dN = dN, dN_ann = dN_ann,
     dB = dB, dB_ann = dB_ann,
     W_max = W_max,
-    r_turn = r_turn, m_turn = m_turn, p_turn = p_turn, l_turn = l_turn,
+    p_turn = p_turn, l_turn = l_turn,
     Bw = Bw, Nw = Nw, 
     Bw_ann = Bw_ann, Nw_ann = Nw_ann,
     P = P, L = L,

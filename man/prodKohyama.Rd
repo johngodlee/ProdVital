@@ -30,6 +30,10 @@ named list containing measures of productivity for the census interval:
 \item \code{Ns0} - number of surviving stems in initial census
 \item \code{Nr0} - number of recruiting stems
 \item \code{Nd0} - number of stems which died
+\item \code{n0} - alternative method for number of stems in initial census, \code{Ns0 + Nd0}
+\item \code{nT} - alternative method for number of stems in final census, \code{Ns0 + Nr0}
+\item \code{dN} - observed net change in number of living stems \code{NT - N0}
+\item \code{dN_ann} - observed net annual change in number of living stems \code{dN / int}
 \item \code{B0} - initial biomass
 \item \code{BT} - final biomass
 \item \code{Bs0} - biomass of survivors in initial census
@@ -38,8 +42,6 @@ named list containing measures of productivity for the census interval:
 \item \code{dB} - observed net biomass change \code{BT - B0}
 \item \code{dB_ann} - observed net annual biomass change \code{dB / int}
 \item \code{W_max} - standardised maximum stem biomass for initial census (99th percentile of biomass)
-\item \code{r_turn} - instantaneous recruitment rate (uses \code{turnoverEst()})
-\item \code{m_turn} - instantaneous mortality rate (uses \code{turnoverEst()})
 \item \code{p_turn} - instantaneous production rate (uses \code{turnoverEst()})
 \item \code{l_turn} - instantaneous loss rate
 \item \code{Bw} - period mean biomass \code{(BT-B0)/log(BT/B0)}
