@@ -40,8 +40,6 @@ named list containing measures of vital rates for census interval:
 \item \code{raf} - Final-density-based per capita annual recruitment rate
 \item \code{ras} - Survivor-density-based per capita annual recruitment rate
 \item \code{raz} - Zero-mortality per capita annual recruitment rate
-\item \code{r_turn} - instantaneous recruitment rate (uses \code{turnoverEst()})
-\item \code{m_turn} - instantaneous mortality rate (uses \code{turnoverEst()})
 \item \code{M} - Instantaneous per area mortality rate
 \item \code{R} - Instantaneous per area recruitment rate
 \item \code{Ma} - Per area annual mortality rate

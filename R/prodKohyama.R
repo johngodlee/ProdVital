@@ -30,8 +30,6 @@
 #'   * `dB` - observed net biomass change `BT - B0`
 #'   * `dB_ann` - observed net annual biomass change `dB / int`
 #'   * `W_max` - standardised maximum stem biomass for initial census (99th percentile of biomass)
-#'   * `p_turn` - instantaneous production rate (uses `turnoverEst()`)
-#'   * `l_turn` - instantaneous loss rate 
 #'   * `Bw` - period mean biomass `(BT-B0)/log(BT/B0)`
 #'   * `Nw` - period mean abundance `(NT-N0)/log(NT/N0)`
 #'   * `Bw_ann` - annual mean biomass `(BT-B0)/((BT/B0)^(1/int) - 1)/int`
@@ -192,16 +190,6 @@ prodKohyama <- function(x, t0, tT, w, group, census) {
   P_ann <- Bw_ann * p_ann  # Production Eq3
   L_ann <- Bw_ann * l_ann  # Loss Eq4
 
-  # Calculate turnover rates
-  p_turn <- try(turnoverEst(BT, Bs0, int), silent = TRUE)
-  if (inherits(p_turn,"try-error")) {
-    p_turn <- NA_real_
-  }
-  l_turn <- try(turnoverEst(B0, Bs0, int), silent = TRUE)
-  if (inherits(l_turn,"try-error")) {
-    l_turn <- NA_real_
-  }
-
   Psimp <- (NT * BT - Ns0 * B0) / int
   Psimp_clark  <- Ns0 * (BT - B0) / int + Nr0 * (BT - Bmin) / int
 
@@ -218,7 +206,6 @@ prodKohyama <- function(x, t0, tT, w, group, census) {
     dN = dN, dN_ann = dN_ann,
     dB = dB, dB_ann = dB_ann,
     W_max = W_max,
-    p_turn = p_turn, l_turn = l_turn,
     Bw = Bw, Nw = Nw, 
     Bw_ann = Bw_ann, Nw_ann = Nw_ann,
     P = P, L = L,

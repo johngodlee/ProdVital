@@ -16,17 +16,9 @@ knitr::opts_chunk$set(fig.pos = "H", out.extra = "")
 
 # Setup
 
-Load the `{seosawr}` package, which contains some useful functions for cleaning
-SEOSAW stem data. The `{seosawr}` package is located in the [SEOSAW Bitbucket
-repository](https://bitbucket.org/miombo/seosaw). Refer to the `README.md` in
-that repository for how to install the package. Load the `{dplyr}` package for
-basic data manipulation. Load `{ProdVital}` which contains the core functions
-for analysing phyto-demographic data.
-
 ```{r message=FALSE}
 # Packages
 library(dplyr)
-library(seosawr)
 library(ProdVital)
 library(ggplot2)
 ```
@@ -40,14 +32,13 @@ data(bicuar)
 `bicuar` is a dataframe of stem data from two plots in Bicuar National Park,
 southwest Angola, measured across three censuses. Censuses were conducted in
 2019, 2021 and 2023. The original data is real, but it has been adjusted to
-better illustrate the functionality of `{ProdVital}`. The data is in the SEOSAW
-style, but with columns removed where they are not relevant to this workflow.
-Each row is a stem measurement in a given census.
+better illustrate the functionality of `{ProdVital}`. Each row is a stem
+measurement (individual) in a given census.
 
 * `plot_id` - ID of the plot
 * `census_date` - Census date of measurement 
-* `stem_id` - ID value grouping measurements into stems
-* `stem_status` - Vital status: alive, resprouting, dead
+* `stem_id` - ID value grouping measurements into stems (individuals)
+* `stem_status` - Vital status of individual: alive, resprouting, dead
 * `diam` - Stem diameter (cm)
 * `agb` - Estimated aboveground biomass (Mg)
 
@@ -57,13 +48,12 @@ Stems may be missing from a particular census, despite being measured in
 censuses before and after. Stem timelines should not have gaps, otherwise you
 will get unrealistic estimates of recruitment, mortality, and biomass turnover
 using the functions in `{ProdVital}`. We need to create these rows so we can
-fill them with estimated values. We can do this using the
-`seosawr::stemFillGen()` function:
+fill them with estimated values. We can do this using the `indFill()` function:
 
 ```{r}
 # Generate missing rows
-plots <- unique(bicuar[,c("plot_id", "census_date")])
-missing_records <- stemFillGen(bicuar, plots)
+missing_records <- indFill(bicuar, d = unique(bicuar$census_date), 
+  group = c("plot_id", "stem_id"), census = "census_date")
 
 # All the new records should be in the middle census
 stopifnot(all(missing_records$census_date == 2021))
@@ -74,14 +64,19 @@ bicuar_pad <- bind_rows(bicuar, missing_records)
 
 Sometimes, a stem will appear to have died only to resurrect at a later date.
 Stems might also be missing stem status values. We can try to fix these issues
-using the `seosawr::statusImputGen()` function. 
+using the `mortFill()` function. 
 
 ```{r}
-# Impute mortality status
-status_est <- statusImputGen(bicuar_pad)
+# Adjust mortality status values
+bicuar_pad$mort_status <- case_when(
+  bicuar_pad$stem_status == "a" ~ 1,
+  bicuar_pad$stem_status %in% c("r", "d") ~ 0,
+  TRUE ~ NA_real_)
 
-# Add new columns to stem data
-bicuar_sfix <- bind_cols(bicuar_pad, status_est)
+# Impute mortality status
+bicuar_pad$status_imput <- mortFill(bicuar_pad, 
+  group = c("plot_id", "stem_id"), 
+  census = "census_date", status = "mort_status")
 ```
 
 Now that the stem status values have been fixed, we should remove measurements
@@ -90,14 +85,11 @@ contain measurements from living stems. Measurements from dead stems should be
 excluded from the stem data. The absence of a stem from a particular census
 after it was initially measured implies that the stem was dead during that
 census. Similarly the absence of a stem from a particular census before it was
-initially measured implies that the stem had not yet recruited. It's up to you
-whether you count resprouting stems (`stem_status` "r", stem dead above point
-of measurement but with living material elsewhere on the tree) as alive or
-dead:
+initially measured implies that the stem had not yet recruited.
 
 ```{r}
-bicuar_alive <- bicuar_sfix %>%
-  filter(stem_status_est == "a")
+bicuar_alive <- bicuar_pad %>%
+  filter(status_imput == 1)
 ```
 
 Stem diameter measurements might be missing. These values should be imputed if
@@ -110,7 +102,8 @@ bicuar_clean <- bicuar_alive %>%
   group_by(plot_id, stem_id) %>% 
   mutate(
     diam = ifelse(is.na(diam), mean(diam, na.rm = TRUE), diam),
-    agb = ifelse(is.na(agb), mean(agb, na.rm = TRUE), agb))
+    agb = ifelse(is.na(agb), mean(agb, na.rm = TRUE), agb)) %>% 
+  filter(!is.na(diam))
 
 stopifnot(all(!is.na(bicuar_clean$diam)))
 ```
@@ -120,14 +113,6 @@ some diameter measurements may contain errors, what should happen if the
 missing value is at the start or end of the stem timeline, or what should
 happen if there are multiple consecutive missing values. In these cases, more
 complex approaches will be required to impute missing diameter values.
-
-If you only want to calculate stem growth increment, these missing values can
-simply be removed:
-
-```{r}
-bicuar_excl <- bicuar_clean %>% 
-  filter(!is.na(diam))
-```
 
 # Identify stem fate
 

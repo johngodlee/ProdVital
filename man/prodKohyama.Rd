@@ -42,8 +42,6 @@ named list containing measures of productivity for the census interval:
 \item \code{dB} - observed net biomass change \code{BT - B0}
 \item \code{dB_ann} - observed net annual biomass change \code{dB / int}
 \item \code{W_max} - standardised maximum stem biomass for initial census (99th percentile of biomass)
-\item \code{p_turn} - instantaneous production rate (uses \code{turnoverEst()})
-\item \code{l_turn} - instantaneous loss rate
 \item \code{Bw} - period mean biomass \code{(BT-B0)/log(BT/B0)}
 \item \code{Nw} - period mean abundance \code{(NT-N0)/log(NT/N0)}
 \item \code{Bw_ann} - annual mean biomass \code{(BT-B0)/((BT/B0)^(1/int) - 1)/int}
