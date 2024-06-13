@@ -18,7 +18,6 @@
 #'   * `N0` - Abundance of living stems in initial census
 #'   * `NT` - Abundance of living stems in final census
 #'   * `NST` - Abundance of surviving stems in final census
-#'   * `nT` - Abundance of recruits in final census
 #'   * `g` - Intrinsic rate of natural increase
 #'   * `m` - Instantaneous per capita mortality rate
 #'   * `r` - Instantaneous per capita recruitment rate
@@ -106,14 +105,6 @@ vitalKohyama <- function(x, t0, tT, w = NULL, group, census, plot_area) {
   # Find abundance of survivors
   NST <- sum(xT_si$n, na.rm = TRUE)
 
-  # Find stem IDs of recruits
-  ri <- obsID(x_fil, type = "rec", group = group, census = census, 
-    t0 = t0, tT = tT)
-  xT_ri <- merge(xT, ri)
-
-  # Find abundance of recruits
-  nT <- sum(xT_ri$n, na.rm = TRUE)
-
   # Calculate intrinsic rate of natural increase
   g <- log(NT / NST) / int
 
@@ -176,7 +167,6 @@ vitalKohyama <- function(x, t0, tT, w = NULL, group, census, plot_area) {
 		N0 = N0,
 		NT = NT,
 		NST = NST,
-		nT = nT,
 		g = g,
 		m = m,
 		r = r,
