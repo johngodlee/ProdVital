@@ -21,7 +21,7 @@
 #'   * `g` - Intrinsic rate of natural increase
 #'   * `m` - Instantaneous per capita mortality rate
 #'   * `r` - Instantaneous per capita recruitment rate
-#'   * `l` - Finite rate of increase
+#'   * `d` - Finite rate of increase
 #'   * `ma` - Per capita annual mortality rate
 #'   * `ra` - Initial-density-based per capita annual recruitment rate
 #'   * `raf` - Final-density-based per capita annual recruitment rate
@@ -106,7 +106,7 @@ vitalKohyama <- function(x, t0, tT, w = NULL, group, census, plot_area) {
   NST <- sum(xT_si$n, na.rm = TRUE)
 
   # Calculate intrinsic rate of natural increase
-  g <- log(NT / NST) / int
+  g <- log(NT / N0) / int
 
   # Calculate instantaneous per capita mortality rate
   m <- log(N0 / NST) / int
@@ -115,7 +115,7 @@ vitalKohyama <- function(x, t0, tT, w = NULL, group, census, plot_area) {
   r <- log(NT / NST) / int
 
   # Calculate finite rate of increase
-  l <- (NT / N0)^(1/int)
+  d <- (NT / N0)^(1/int)
 
   # Calculate per capita annual mortality rate
   ma <- 1 - (NST / N0)^(1/int)
@@ -170,7 +170,7 @@ vitalKohyama <- function(x, t0, tT, w = NULL, group, census, plot_area) {
 		g = g,
 		m = m,
 		r = r,
-		l = l,
+		d = d,
 		ma = ma,
 		ra = ra,
 		raf = raf,
